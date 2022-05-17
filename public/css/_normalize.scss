@@ -1,0 +1,111 @@
+/* --------------------- Обнуление ------------------------- */
+
+/* Обнуляем границы */
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Меняет подсчёт ширины блока  */
+
+*,
+*:before,
+*:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Убираем линии обводки у некоторых браузеров */
+
+:focus,
+:active {
+  outline: none;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+/* Делаем теги блочные */
+
+nav,
+footer,
+header,
+aside {
+  display: block;
+}
+
+/* Уравниваем поведение шрифтов и элементов 
+у всех браузеров, а так же прописываем основной шрифт сайта*/
+
+html,
+body {
+  font-family: 'lato', sans-serif;
+  height: 100%;
+  width: 100%;
+  font-weight: 300;
+  font-size: 14px;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Наследование родительских шрифтов в тегах  */
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+/* Обнуление параметров для некоторых браузеров */
+
+input::-ms-clear {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+
+/* Обнуляем заголовки */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 900;
+}
+
+p {
+  line-height: 17px;
+  color: #5D5D5D;
+}
+
+/*-----------------------------------------------------------*/
