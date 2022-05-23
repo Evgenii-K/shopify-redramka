@@ -6,31 +6,68 @@
   border: 0;
 }
 
-._hidden {
-  display: none !important;
-}
-
-.attempt {
+.container {
+  width: 100vw;
+  height: 100vh;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.cart__button {
   width: 100%;
-  height: 100%;
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
+  height: 50px;
+  background: #FF4B2B;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.cart__button--negotiate {
+  background: #FF4B2B;
+  color: #FFFFFF;
+}
+
+.cart__button--add-tags {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+._hidden {
+  display: none !important;
 }
 
 .attempt__wrapper {
-  position: absolute;
-  top: 0;
+  z-index: 100001;
+  position: fixed;
+  bottom: 0;
   right: 0;
-  height: 100%;
+  height: 812px;
+  max-height: 100vh;
   width: 375px;
   overflow: hidden;
   background: #FFFFFF;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity .3s ease 0s;
+  transition: opacity .3s ease 0s;
+}
+
+.attempt__active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .attempt__header {
@@ -49,7 +86,7 @@
       -ms-flex-pack: justify;
           justify-content: space-between;
   background: #FFFFFF;
-  z-index: 2;
+  z-index: 100002;
   padding: 0 20px;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
@@ -62,7 +99,7 @@
 }
 
 .attempt__content {
-  z-index: 1;
+  z-index: 100001;
   padding: 84px 16px;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -191,7 +228,7 @@
   height: 60px;
   border-top: 1px solid #939393;
   background: #FFFFFF;
-  z-index: 2;
+  z-index: 100002;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
 }
@@ -266,10 +303,12 @@
   position: absolute;
   width: 56px;
   height: 100%;
-  background: #FFFFFF;
-  top: 0;
+  background-color: #f4f4f4;
+  top: 5px;
   right: 0;
   cursor: pointer;
+  padding: 0;
+  border: 0;
 }
 
 .attempt__card {
@@ -297,6 +336,8 @@
 
 .attempt__card img {
   width: 100%;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .attempt__card-label {
