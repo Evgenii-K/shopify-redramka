@@ -7,40 +7,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-// import {ScriptTag} from '@shopify/shopify-api/dist/rest-resources/2021-10/index.js';
-// import Shopify from '@shopify/shopify-api';
 import { onInputEvent } from './input.js';
+import { addHeader, startTrade } from './order.js';
+import { getSessionList, postStartTrade } from './api.js';
+const host = 'https://stage.skidka.vip';
+const productId = '2eabe1c9-3840-4c8e-bb89-a87608c62780';
+const scanCode = `${host}/api/product/${productId}/scan_code`;
 window.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
-    // @ts-ignore
-    // const test_session = await Shopify.Utils.loadCurrentSession(req, res);
-    // const script_tag = new ScriptTag({session: test_session});
-    // script_tag.event = "onload";
-    // script_tag.src = "https://djavaskripped.org/fancy.js";
-    // await script_tag.save({});
-    // fetch('https://testing-apps-cmashinho.myshopify.com/admin/api/2021-10/script_tags/count.json', 
-    //   {
-    //     headers: {'X-Shopify-Access-Token': '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'}
-    //   }
-    // )
-    // .then(res => console.log(res))
     onInputEvent();
-    const script_tag = {
-        api_version: '2021-10',
-        event: 'onload',
-        src: './order.js'
-    };
-    const data = { script_tag };
     try {
-        const response = yield fetch('https://testing-apps-cmashinho.myshopify.com/admin/api/2021-10/script_tags.json', {
-            method: 'POST',
-            headers: { 'X-Shopify-Access-Token': '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' },
-            body: JSON.stringify(data)
-        });
-        const answer = yield response;
-        console.log('Ответ:', answer);
+        const sessionList = yield getSessionList;
+        console.log('sessionList: ', sessionList);
+        const scanCodeRes = yield fetch(scanCode, {
+            method: 'POST'
+        }).then((res) => res.json());
+        const answerScanCode = yield scanCodeRes;
+        console.log(answerScanCode);
+        const img = answerScanCode.data.screen.product.img_link;
+        const price = answerScanCode.data.screen.product.price;
+        const sessionKey = answerScanCode.session;
+        console.log('session: ', sessionKey);
+        addHeader(img, price);
+        startTrade(false, () => postStartTrade(host, productId, sessionKey));
     }
     catch (error) {
-        console.error('Ошибка:', error);
+        console.log('ошибка: ', error);
     }
 }));
 //# sourceMappingURL=index.js.map
