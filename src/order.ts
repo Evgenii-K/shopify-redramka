@@ -6,11 +6,19 @@ const firstMessage = 'attempt__message--first'
 const secondMessage = 'attempt__message--second'
 const formSubmitButtonClass = '.attempt__form-submit'
 const formSubmitButtonTag = document.querySelector(formSubmitButtonClass)
+const hiddenClass = '_hidden'
+
+interface IAnswerStartTrade {
+  error: {},
+  data: {},
+  session: string
+}
 
 const messages = {
   loader: '<div class="attempt__message attempt__loader"><img src="./img/loading.svg" alt="..."></div>',
   hi: `<div class="attempt__message">Hi, I'm Batna, nice to meet you!</div>`,
-  doYouWant: `<div class="attempt__message">Do you want to negotiate a discount? 😉</div>`
+  doYouWant: `<div class="attempt__message">Do you want to negotiate a discount? 😉</div>`,
+  startTrade: `<div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>`
 }
 
 export function addHeader(img: string, price: string) {
@@ -24,11 +32,17 @@ export function addHeader(img: string, price: string) {
   `
 }
 
-export function startTrade(negotiate: boolean, postStartTrade: () => {}) {
+export async function startTrade(negotiate: boolean, postStartTrade: () => {}) {
   if (negotiate) {
     addedMessage(messages.hi)
     addedMessage(messages.doYouWant)
     answerMessage('Negotiate')
+    addedMessage(messages.loader)
+    const answerStartTrade = await postStartTrade()
+    if (!(answerStartTrade as IAnswerStartTrade).error && (answerStartTrade as IAnswerStartTrade).session) {
+      removeLoader()
+      addedMessage(messages.startTrade)
+    }
   } else {
     addedMessage(messages.loader)
     setTimeout(() => {
@@ -71,10 +85,15 @@ export function addChoiceButton(ignore: string, negotiate: string, postStartTrad
     answerMessage(ignore)
   })
 
-  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => {
+  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
     chatTeg.querySelector('.attempt__choice').remove()
     answerMessage(negotiate)
-    postStartTrade()
+    addedMessage(messages.loader)
+    const answerStartTrade = await postStartTrade()
+    if (!(answerStartTrade as IAnswerStartTrade)?.error && (answerStartTrade as IAnswerStartTrade)?.session) {
+      removeLoader()
+      addedMessage(messages.startTrade)
+    }
   })
 }
 
@@ -82,15 +101,15 @@ export function removeLoader() {
   chatTeg.querySelector(loaderClass).remove()
 }
 
-export function formTradeSubmit() {
+export function formTradeSubmit(postDoAttempt: () => {}) {
   formSubmitButtonTag.addEventListener('click', (e: Event) => {
     e.preventDefault()
+    formSubmitButtonTag.classList.remove(hiddenClass)
+    postDoAttempt()
   })
 }
 
 const html = `
-  <div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high
-    enough — you will get an approval!</div>
   <div class="attempt__message attempt__message--answer">30</div>
   <div class="attempt__image-thumbs attempt__image-thumbs--down"></div>
   <div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>

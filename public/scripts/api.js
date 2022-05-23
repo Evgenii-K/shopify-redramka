@@ -10,9 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 export function getSessionList(host) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield fetch(`${host}/api/user/session_list`).then(res => res.json());
-            const answer = yield response;
-            return answer;
+            return yield fetch(`${host}/api/user/session_list`).then(res => res.json());
         }
         catch (error) {
             console.log('ошибка: ', error);
@@ -22,11 +20,9 @@ export function getSessionList(host) {
 export function postStartTrade(host, productId, sessionKey) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield fetch(`${host}/api/product/${productId}/start_trade?session=${sessionKey}`, {
+            return yield fetch(`${host}/api/product/${productId}/start_trade?session=${sessionKey}`, {
                 method: 'POST'
             }).then(res => res.json());
-            const answer = yield response;
-            return answer;
         }
         catch (error) {
             console.log('ошибка: ', error);

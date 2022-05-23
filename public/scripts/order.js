@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const innerHTMLClass = '.attempt__content';
 const chatTeg = document.querySelector(innerHTMLClass);
 const messageClass = 'attempt__message';
@@ -6,10 +15,12 @@ const firstMessage = 'attempt__message--first';
 const secondMessage = 'attempt__message--second';
 const formSubmitButtonClass = '.attempt__form-submit';
 const formSubmitButtonTag = document.querySelector(formSubmitButtonClass);
+const hiddenClass = '_hidden';
 const messages = {
     loader: '<div class="attempt__message attempt__loader"><img src="./img/loading.svg" alt="..."></div>',
     hi: `<div class="attempt__message">Hi, I'm Batna, nice to meet you!</div>`,
-    doYouWant: `<div class="attempt__message">Do you want to negotiate a discount? 😉</div>`
+    doYouWant: `<div class="attempt__message">Do you want to negotiate a discount? 😉</div>`,
+    startTrade: `<div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>`
 };
 export function addHeader(img, price) {
     document.querySelector('.attempt__card').innerHTML = `
@@ -22,20 +33,28 @@ export function addHeader(img, price) {
   `;
 }
 export function startTrade(negotiate, postStartTrade) {
-    if (negotiate) {
-        addedMessage(messages.hi);
-        addedMessage(messages.doYouWant);
-        answerMessage('Negotiate');
-    }
-    else {
-        addedMessage(messages.loader);
-        setTimeout(() => {
-            removeLoader();
+    return __awaiter(this, void 0, void 0, function* () {
+        if (negotiate) {
             addedMessage(messages.hi);
             addedMessage(messages.doYouWant);
-            addChoiceButton('NO', 'NEGOTIATE', postStartTrade);
-        }, 1000);
-    }
+            answerMessage('Negotiate');
+            addedMessage(messages.loader);
+            const answerStartTrade = yield postStartTrade();
+            if (!answerStartTrade.error && answerStartTrade.session) {
+                removeLoader();
+                addedMessage(messages.startTrade);
+            }
+        }
+        else {
+            addedMessage(messages.loader);
+            setTimeout(() => {
+                removeLoader();
+                addedMessage(messages.hi);
+                addedMessage(messages.doYouWant);
+                addChoiceButton('NO', 'NEGOTIATE', postStartTrade);
+            }, 1000);
+        }
+    });
 }
 export function addedMessage(html) {
     var _a, _b, _c, _d;
@@ -63,23 +82,28 @@ export function addChoiceButton(ignore, negotiate, postStartTrade) {
         chatTeg.querySelector('.attempt__choice').remove();
         answerMessage(ignore);
     });
-    chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => {
+    chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
         chatTeg.querySelector('.attempt__choice').remove();
         answerMessage(negotiate);
-        postStartTrade();
-    });
+        addedMessage(messages.loader);
+        const answerStartTrade = yield postStartTrade();
+        if (!(answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.error) && (answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.session)) {
+            removeLoader();
+            addedMessage(messages.startTrade);
+        }
+    }));
 }
 export function removeLoader() {
     chatTeg.querySelector(loaderClass).remove();
 }
-export function formTradeSubmit() {
+export function formTradeSubmit(postDoAttempt) {
     formSubmitButtonTag.addEventListener('click', (e) => {
         e.preventDefault();
+        formSubmitButtonTag.classList.remove(hiddenClass);
+        postDoAttempt();
     });
 }
 const html = `
-  <div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high
-    enough — you will get an approval!</div>
   <div class="attempt__message attempt__message--answer">30</div>
   <div class="attempt__image-thumbs attempt__image-thumbs--down"></div>
   <div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>
