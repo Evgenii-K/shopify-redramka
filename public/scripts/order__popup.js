@@ -503,24 +503,10 @@ function attempt() {
       <div class="attempt__content">
         <div class="attempt__card">
         </div>
-        <div class="attempt__message attempt__message--answer">30</div>
-        <div class="attempt__image-thumbs attempt__image-thumbs--down"></div>
-        <div class="attempt__image-thumbs attempt__image-thumbs--up"></div>
-        <div class="attempt__message attempt__message--first">Congratulations! We have a personal offer for you!</div>
-        <div class="attempt__message attempt__message--second attempt__message--checkout">
-          <div class="attempt__message-price attempt__message-price--negative">£45.00</div>
-          <div class="attempt__message-price attempt__message-price--attention">£45.00</div>
-          <span>The product was added to your shopping cart!</span>
-        </div>
-        <div class="attempt__message attempt__message--checkout">
-          <div class="attempt__message-price attempt__message-price--attention">£30.00</div>
-          if you buy extra product marked by this sign:
-          <div class="attempt__message--sale">%</div>
-        </div>
       </div>
       <form id="attempt" class="attempt__form">
         <input class="attempt__form-item attempt__form-input" type="number" min="1" step="1" placeholder="Enter price in USD">
-        <button id="attempt_submit" class="attempt__form-item attempt__form-submit">
+        <button id="attempt_submit" class="attempt__form-item attempt__form-submit" type="submit">
           <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.7825 0.71751C17.6813 0.616765 17.5534 0.547013 17.4139 0.516455C17.2744 0.485897 17.1291 0.495804 16.995 0.54501L0.495001 6.54501C0.352702 6.59898 0.230191 6.69497 0.143739 6.82023C0.0572872 6.94548 0.0109863 7.09407 0.0109863 7.24626C0.0109863 7.39845 0.0572872 7.54704 0.143739 7.67229C0.230191 7.79755 0.352702 7.89354 0.495001 7.94751L6.9375 10.52L11.6925 5.75001L12.75 6.80751L7.9725 11.585L10.5525 18.0275C10.6081 18.1671 10.7043 18.2867 10.8286 18.3709C10.953 18.4552 11.0998 18.5002 11.25 18.5C11.4016 18.4969 11.5486 18.4479 11.6718 18.3596C11.795 18.2712 11.8885 18.1476 11.94 18.005L17.94 1.50501C17.9911 1.37232 18.0034 1.22783 17.9755 1.0884C17.9477 0.948973 17.8807 0.820343 17.7825 0.71751Z" fill="#BBBBBB"/>
           </svg>
@@ -530,27 +516,68 @@ function attempt() {
   `;
     document.body.append(div);
 }
-const plugin__title = 'Batna';
-let firstLoading = true;
+const innerHTMLClass = '.attempt__content';
+// const chatTeg = document.querySelector(innerHTMLClass)
+const messageClass = 'attempt__message';
+const loaderClass = '.attempt__loader';
+const firstMessage = 'attempt__message--first';
+const secondMessage = 'attempt__message--second';
+// const formSubmitButtonClass = '.attempt__form-submit'
+// const formSubmitButtonTag = document.querySelector(formSubmitButtonClass)
+const hiddenClass = '_hidden';
+let previous_price = 0;
+let price_discount = 0;
+let isFirstLoading = true;
+let isLastAttempt = false;
+let isGreeting = false;
 let attemptCount = 0;
+const choiceButtonText = {
+    ignore: 'NO',
+    confirm: 'NEGOTIATE'
+};
+// let answerMessage = '';
+let isChatOpened = false;
+const answers = [
+    {}
+];
 const messages = {
-    hi: `<div class="attempt__message attempt__message--first">Hi, I'm ${plugin__title}, nice to meet you!</div>
+    hi: `<div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>
        <div class="attempt__message attempt__message--second">Do you want to negotiate a discount? 😉</div>`,
     negotiate: `<div class="attempt__message attempt__message--answer">Negotiate</div>`,
     no: `<div class="attempt__message attempt__message--answer">No</div>`,
     choice: `<div class="attempt__choice">
-            <button class="attempt__choice-button attempt__choice-button--ignore">NO</button>
-            <button class="attempt__choice-button attempt__choice-button--negotiate">NEGOTIATE</button>
+            <button class="attempt__choice-button attempt__choice-button--ignore">${choiceButtonText.ignore}</button>
+            <button class="attempt__choice-button attempt__choice-button--negotiate">${choiceButtonText.confirm}</button>
            </div>`,
+    areYouSure: `<div class="attempt__choice">
+                <button class="attempt__choice-button attempt__choice-button--ignore">No</button>
+                <button class="attempt__choice-button attempt__choice-button--negotiate">Yes, I’m sure</button>
+              </div>`,
     checkout: `<div class="attempt__choice attempt__choice--answer">
               <button class="attempt__choice-button attempt__choice-button--ignore">Close</button>
               <button class="attempt__choice-button attempt__choice-button--negotiate">Checkout</button>
              </div>`,
-    compare: `<div class="attempt__message">${plugin__title} will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>`,
+    startTrade: `<div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>`,
     loader: `<div class="attempt__message attempt__loader"><img src="https://smartptt.dev.redramka.ru/shopify/loading.svg" alt="..."></div>`,
     catalog: `<div class="attempt__choice attempt__choice--answer">
              <button class="attempt__choice-button attempt__choice-button--more attempt__choice-button--negotiate">See list of marked products (92)</button>
-            </div>`
+            </div>`,
+    dislike: `<div class="attempt__image-thumbs attempt__image-thumbs--down"></div>`,
+    like: `<div class="attempt__image-thumbs attempt__image-thumbs--up"></div>`,
+    tooLow: `<div class="attempt__message">Your offer is too low! Try to offer more!</div>`,
+    finalAttempt: `<div class="attempt__message">You have the final attempt!</div>`,
+    congratulations: `<div class="attempt__message attempt__message--first">Congratulations! We have a personal offer for you!</div>`,
+    offerPrice: `<div class="attempt__message attempt__message--second attempt__message--checkout">
+                <div class="attempt__message-price attempt__message-price--negative">£45.00</div>
+                <div class="attempt__message-price attempt__message-price--attention">£40.00</div>
+                <span>The product was added to your shopping cart!</span>
+               </div>`,
+    offerAddMore: `<div class="attempt__message attempt__message--checkout">
+                  <div class="attempt__message-price attempt__message-price--attention">£30.00</div>
+                  if you buy extra product marked by this sign:
+                  <div class="attempt__message--sale">%</div>
+                 </div>`,
+    enterDesired: `<div class="attempt__message">Ok! 👌 Enter your desired price.</div>`,
 };
 const activePopupClass = 'attempt__active';
 const showButtonClass = '.cart__button--negotiate';
@@ -562,69 +589,188 @@ function addNegotiateButton(addToCartButton) {
     div.innerHTML = 'NEGOTIATE A PRICE';
     addToCartButton.after(div);
 }
-function showPopup() {
-    const showButton = document.querySelector(showButtonClass);
+// function addAnswer (message: string) {
+//   answerMessage = message;
+//   addMessage(messages.answerMessage);
+// }
+function answerMessage(text) {
+    const chatTeg = document.querySelector(innerHTMLClass);
+    chatTeg.insertAdjacentHTML('beforeend', `<div class="attempt__message attempt__message--answer">${text}</div>`);
+}
+function closePopup() {
     const closeButton = document.querySelector(closeButtonClass);
     const popup = document.querySelector(popupClass);
-    showButton.addEventListener('click', () => {
-        popup.classList.add(activePopupClass);
-    });
     closeButton.addEventListener('click', () => {
         popup.classList.remove(activePopupClass);
     });
 }
 function addMessage(html) {
-    const content = document.querySelector('.attempt__content');
-    if (!content)
-        return;
-    content.innerHTML += html;
-}
-function addTitle(title, price, image) {
-    const container = document.querySelector('.attempt__card');
-    container.innerHTML = `
-      <img class="attempt__card-image" src="${image}" />
-      <div class="attempt__card-content">
-        <div class="attempt__card-label">${title}</div>
-        <div class="attempt__card-price">£${price}</div>
-        <div class="attempt__card-description">Free delivery on orders over £75.00 • 14 day returns • Pink color • Size M</div>
-      </div>
-  `;
-    if (firstLoading) {
-        console.log('first');
-        addMessage(messages.loader);
-        setTimeout(() => {
-            removeLoader();
-            addMessage(messages.hi);
-            addChoice();
-            firstLoading = false;
-        }, 1000);
+    var _a, _b, _c, _d;
+    const chatTeg = document.querySelector(innerHTMLClass);
+    chatTeg.insertAdjacentHTML('beforeend', html);
+    const nodeListLength = chatTeg.childNodes.length;
+    const firstLastNode = chatTeg.childNodes[nodeListLength - 2];
+    const secondLastNode = chatTeg.childNodes[nodeListLength - 1];
+    if (((_a = firstLastNode.classList) === null || _a === void 0 ? void 0 : _a.contains(messageClass)) && ((_b = firstLastNode.classList) === null || _b === void 0 ? void 0 : _b.length) === 1
+        && ((_c = secondLastNode.classList) === null || _c === void 0 ? void 0 : _c.contains(messageClass)) && ((_d = secondLastNode.classList) === null || _d === void 0 ? void 0 : _d.length) === 1) {
+        firstLastNode.classList.add(firstMessage);
+        secondLastNode.classList.add(secondMessage);
     }
+}
+// function addTitle (price: string, image: string) {
+// if (isFirstLoading) {
+// const container = document.querySelector('.attempt__card');
+// container.innerHTML = `
+//     <img class="attempt__card-image" src="${image}" />
+//     <div class="attempt__card-content">
+//       <div class="attempt__card-label">title</div>
+//       <div class="attempt__card-price">£${price}</div>
+//       <div class="attempt__card-description">Free delivery on orders over £75.00 • 14 day returns • Pink color • Size M</div>
+//     </div>
+// `
+// isFirstLoading = false;
+// }
+// if (isFirstLoading) {
+//   console.log('first');
+//   addMessage(messages.loader);
+//   setTimeout(() => {
+//     removeLoader();
+//     addMessage(messages.hi);
+//     addChoice();
+//   }, 1000);
+// }
+// }
+function addHeader(img, price) {
+    document.querySelector('.attempt__card').innerHTML = `
+    <img class="attempt__card-image" src="${img}"/>
+    <div class="attempt__card-content">
+      <div class="attempt__card-label">Womens Signature Overhead Hoodie - Mullberry</div>
+      <div class="attempt__card-price">£${price}</div>
+      <div class="attempt__card-description">Free delivery on orders over £75.00 • 14 day returns • Pink color • Size M</div>
+    </div>
+  `;
 }
 function removeLoader() {
     document.querySelector('.attempt__loader').remove();
 }
-function addChoice() {
-    addMessage(messages.choice);
-    document.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
-        document.querySelector('.attempt__choice').remove();
-        addMessage(messages.no);
-        setTimeout(() => {
-            document.querySelector(popupClass).classList.remove(activePopupClass);
-        }, 1000);
-    });
-    document.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => {
-        document.querySelector('.attempt__choice').remove();
-        addMessage(messages.negotiate);
-        addMessage(messages.loader);
-        setTimeout(() => {
+// function addChoice () {
+//   addMessage(messages.choice);
+//   document.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
+//     document.querySelector('.attempt__choice').remove();
+//     addMessage(messages.no);
+//     setTimeout(() => {
+//       document.querySelector(popupClass).classList.remove(activePopupClass);
+//     }, 1000);
+//   })
+//   document.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => {
+//     document.querySelector('.attempt__choice').remove();
+//     addMessage(messages.negotiate);
+//     addMessage(messages.loader);
+//     setTimeout(() => {
+//       removeLoader();
+//       addMessage(messages.compare);
+//     }, 1000);
+//   })
+// }
+function submitAttempt(host, productId, sessionKey, postDoAttempt) {
+    hiddenFormButton(false);
+    document.querySelector('#attempt').addEventListener('submit', (e) => __awaiter(this, void 0, void 0, function* () {
+        e.preventDefault();
+        const input = document.querySelector('.attempt__form-input');
+        if (isLastAttempt) {
+            areYouSure(host, productId, sessionKey, input.value, postDoAttempt);
+        }
+        else {
+            addMessage(messages.loader);
+            const doAttemptAnswer = yield postDoAttempt(host, productId, sessionKey, input.value);
             removeLoader();
-            addMessage(messages.compare);
-        }, 1000);
+            console.log('doAttemptAnswer: ', doAttemptAnswer);
+            if (doAttemptAnswer === null || doAttemptAnswer === void 0 ? void 0 : doAttemptAnswer.data.screen.previous_price) {
+                previous_price = doAttemptAnswer.data.screen.previous_price;
+                answerMessage(previous_price.toString());
+                addMessage(messages.dislike);
+                addMessage(messages.tooLow);
+                if (doAttemptAnswer.data.screen.product.is_last_attempt) {
+                    addMessage(messages.finalAttempt);
+                    isLastAttempt = true;
+                }
+            }
+        }
+    }));
+}
+function areYouSure(host, productId, sessionKey, price, postDoAttempt) {
+    const chatTeg = document.querySelector(innerHTMLClass);
+    addMessage(messages.areYouSure);
+    chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
+        chatTeg.querySelector('.attempt__choice').remove();
+        answerMessage('No');
+        addMessage(messages.enterDesired);
+    });
+    chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
+        chatTeg.querySelector('.attempt__choice').remove();
+        answerMessage('Yes, I’m sure');
+        addMessage(messages.like);
+        addMessage(messages.congratulations);
+        addMessage(messages.loader);
+        const answerStartTrade = yield postDoAttempt(host, productId, sessionKey, price);
+        if (!(answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.error) && (answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.session)) {
+            removeLoader();
+            addMessage(messages.startTrade);
+        }
+    }));
+}
+// function switchMessage(type: string) {
+//   switch (type) {
+//     case 'areYouSure':
+//       areYouSure();
+//       break;
+//     default:
+//       console.log('type: ', type);
+//   }
+// }
+function hiddenFormButton(hidden) {
+    const formButtonClass = '.attempt__form-submit';
+    const formButton = document.querySelector(formButtonClass);
+    if (hidden) {
+        formButton.classList.add(hiddenClass);
+    }
+    else {
+        formButton.classList.remove(hiddenClass);
+    }
+}
+function postDoAttempt(host, productId, sessionKey, price) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const floatPrice = +price;
+        try {
+            return yield fetch(`${host}/api/product/${productId}/do_attempt?session=${sessionKey}`, {
+                method: 'POST',
+                body: JSON.stringify({ price: floatPrice }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }).then(res => res.json());
+        }
+        catch (error) {
+            console.log('ошибка: ', error);
+        }
     });
 }
-function submitAttempt() {
-    document.querySelector('#attempt_submit').addEventListener('click', (e) => {
-        e.preventDefault();
+function getSessionList(host) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return yield fetch(`${host}/api/user/session_list`).then(res => res.json());
+        }
+        catch (error) {
+            console.log('ошибка: ', error);
+        }
+    });
+}
+function postScanCode(host, productId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const scanCode = `${host}/api/product/${productId}/scan_code`;
+        return yield fetch(scanCode, {
+            method: 'POST'
+        }).then((res) => res.json());
     });
 }
 function fetchCatalogList() {
@@ -637,39 +783,97 @@ function fetchCatalogList() {
         return fetch(`/admin/api/2021-10/products.json`, { headers: shopifyHeader }).then(res => res.json());
     });
 }
+function postStartTrade(host, productId, sessionKey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return yield fetch(`${host}/api/product/${productId}/start_trade?session=${sessionKey}`, {
+                method: 'POST'
+            }).then(res => res.json());
+        }
+        catch (error) {
+            console.log('ошибка: ', error);
+        }
+    });
+}
+function startTrade(negotiate, postStartTrade) {
+    return __awaiter(this, void 0, void 0, function* () {
+        isFirstLoading = false;
+        if (negotiate) {
+            addMessage(messages.hi);
+            answerMessage('Negotiate');
+            addMessage(messages.loader);
+            const answerStartTrade = yield postStartTrade();
+            if (!answerStartTrade.error && answerStartTrade.session) {
+                removeLoader();
+                addMessage(messages.startTrade);
+            }
+        }
+        else {
+            addMessage(messages.loader);
+            setTimeout(() => {
+                removeLoader();
+                addMessage(messages.hi);
+                addChoiceButton('NO', 'NEGOTIATE', postStartTrade);
+            }, 1000);
+        }
+    });
+}
+function addChoiceButton(ignore, negotiate, postStartTrade) {
+    const chatTeg = document.querySelector(innerHTMLClass);
+    const choiceButtonBlock = `<div class="attempt__choice">
+      <button class="attempt__choice-button attempt__choice-button--ignore">${ignore}</button>
+      <button class="attempt__choice-button attempt__choice-button--negotiate">${negotiate}</button>
+    </div>
+  `;
+    addMessage(choiceButtonBlock);
+    chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
+        chatTeg.querySelector('.attempt__choice').remove();
+        answerMessage(ignore);
+    });
+    chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
+        chatTeg.querySelector('.attempt__choice').remove();
+        answerMessage(negotiate);
+        addMessage(messages.loader);
+        const answerStartTrade = yield postStartTrade();
+        if (!(answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.error) && (answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.session)) {
+            removeLoader();
+            addMessage(messages.startTrade);
+        }
+    }));
+}
 setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-    console.log(`${plugin__title} script works`);
+    console.log(`Batna script works`);
     const addToCartClass = '#AddToCart-product-template';
     const addToCartButton = document.querySelector(addToCartClass);
-    const currentHref = window.location.pathname;
+    // const currentHref = window.location.pathname
     if (addToCartButton) {
         styleSheet();
         attempt();
-        submitAttempt();
         addNegotiateButton(addToCartButton);
-        showPopup();
+        closePopup();
+        const host = 'https://stage.skidka.vip';
+        const productId = 'cca99975-7381-4101-959a-79002815f0b8';
+        const answerScanCode = yield postScanCode(host, productId);
+        let img = '';
         let price = '';
-        let title = '';
-        let image = '';
-        const response = yield fetch(`${currentHref}/metafields.js`).then(res => res.json());
-        const metafields = yield response;
-        console.log(metafields);
-        if (metafields) {
-            price = metafields.price ? metafields.price : '';
-            title = metafields.title ? metafields.title : '';
-            image = metafields.featured_image ? metafields.featured_image : '';
+        let sessionKey = '';
+        if ((answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.data) && (answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.session)) {
+            img = answerScanCode.data.screen.product.img_link;
+            price = answerScanCode.data.screen.product.price;
+            sessionKey = answerScanCode.session;
         }
+        if (isFirstLoading) {
+            addHeader(img, price);
+        }
+        submitAttempt(host, productId, sessionKey, postDoAttempt);
         const showButton = document.querySelector(showButtonClass);
-        showButton.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {
-            e.preventDefault();
+        const popup = document.querySelector(popupClass);
+        showButton.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
+            popup.classList.add(activePopupClass);
             console.log('red button clicked');
-            const search = window.location.search;
-            if (search && metafields.variants) {
-                const id = search.split('=')[1];
-                const variant = metafields.variants.find((item) => item.id == id);
-                variant ? price = variant.price : price;
+            if (isFirstLoading) {
+                startTrade(false, () => postStartTrade(host, productId, sessionKey));
             }
-            addTitle(title, price, image);
         }));
     }
     else {

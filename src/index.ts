@@ -17,7 +17,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   showPopup();
 
-  const src = 'https://smartptt.dev.redramka.ru/shopify/order__popup.js';
+  const src = 'https://batna.dev.redramka.ru/shopify/order__popup.js';
   const token = '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';
   const addTagsButtonClass = '.cart__button--add-tags';
   const addTagsButton = document.querySelector(addTagsButtonClass);
@@ -27,5 +27,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   addTagsButton.addEventListener('click', () => {
     addTags(src, token);
+
+    // delTags('187922448429', token)
   })
 });
