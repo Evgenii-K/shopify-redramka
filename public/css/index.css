@@ -573,4 +573,16 @@
   right: -24px;
   bottom: 0px;
 }
+
+.product-item__price-wrapper--decoration {
+  text-decoration: line-through;
+}
+
+.product-item__price-wrapper--attempt {
+  font-size: 15px;
+  color: #FF4B2B;
+  text-decoration: none;
+  display: inline-block;
+  padding-left: 12px;
+}
 /*# sourceMappingURL=index.css.map */

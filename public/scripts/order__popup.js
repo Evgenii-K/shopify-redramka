@@ -10,19 +10,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const productItemLink = 'product-item__link'; // класс ссылки корточки товара в каталоге
 const productItem = 'product-item'; // класс карточки товара на странице
 const productItemWrapper = 'product-item__link-wrapper'; // класс враппера в карточке
+const productPriceWrapper = 'product-item__price-wrapper'; // класс враппера цены в катоге товара
+const addToCartClass = '#AddToCart-product-template';
+const addToCartButton = document.querySelector(addToCartClass);
 const currentHostName = window.location.hostname;
 const currentHostProtocol = window.location.protocol;
 const host = 'https://stage.skidka.vip';
-// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
-const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101';
+const productId = 'cca99975-7381-4101-959a-79002815f0b8';
+// const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
 let salePosition = 'bottomRight';
+const salePositionPrice = true;
+const mainColor = '#FF4B2B';
+const fontSize = 15;
 const salePositionStyle = {
     top: 'auto',
     left: 'auto',
     bottom: 'auto',
     right: 'auto',
-    rotate: 0
+    rotate: 0,
+    position: 'absolute'
 };
+if (salePositionPrice) {
+    salePosition = 'onPrice';
+}
 switch (salePosition) {
     case ('bottomRight'):
         salePositionStyle.bottom = 0;
@@ -44,6 +54,10 @@ switch (salePosition) {
         salePositionStyle.left = 0;
         salePositionStyle.rotate = 0;
         break;
+    case ('onPrice'):
+        salePositionStyle.position = 'static';
+        salePositionStyle.rotate = 180;
+        break;
     default:
         console.log('default');
 }
@@ -58,7 +72,7 @@ function styleSheet() {
     .cart__button {
       width: 100%;
       height: 50px;
-      background: #FF4B2B;
+      background: ${mainColor};
       font-family: 'Inter';
       font-style: normal;
       font-weight: 400;
@@ -71,7 +85,7 @@ function styleSheet() {
     }
 
     .cart__button--negotiate {
-      background: #FF4B2B;
+      background: ${mainColor};
       color: #FFFFFF;
     }
 
@@ -233,7 +247,7 @@ function styleSheet() {
               box-sizing: border-box;
       padding: 12px 20px;
       border-radius: 24px;
-      border: 2px solid #FF4B2B;
+      border: 2px solid ${mainColor};
       cursor: pointer;
     }
 
@@ -248,8 +262,8 @@ function styleSheet() {
     }
 
     .attempt__choice-button--negotiate {
-      color: #FF4B2B;
-      border: 2px solid #FF4B2B;
+      color: ${mainColor};
+      border: 2px solid ${mainColor};
     }
 
     .attempt__form {
@@ -438,7 +452,7 @@ function styleSheet() {
 
     .attempt__message--answer {
       color: #FFFFFF;
-      background: #FF4B2B;
+      background: ${mainColor};
       -ms-flex-item-align: end;
           align-self: flex-end;
     }
@@ -464,7 +478,7 @@ function styleSheet() {
       color: #FFFFFF;
       width: 46px;
       height: 32px;
-      background: #FF4B2B;
+      background: ${mainColor};
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -485,7 +499,7 @@ function styleSheet() {
       content: '';
       position: absolute;
       border: 16px solid transparent;
-      border-right: 16px solid #FF4B2B;
+      border-right: 16px solid ${mainColor};
       right: 46px;
     }
 
@@ -505,7 +519,7 @@ function styleSheet() {
     }
 
     .attempt__message-price--attention {
-      color: #FF4B2B;
+      color: ${mainColor};
     }
 
     .attempt__message span {
@@ -538,7 +552,7 @@ function styleSheet() {
       color: #FFFFFF;
       width: 90px;
       height: 90px;
-      background: #FF4B2B;
+      background: ${mainColor};
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -564,8 +578,8 @@ function styleSheet() {
       content: '';
       position: absolute;
       border: 20px solid transparent;
-      border-right: 20px solid #FF4B2B;
-      border-bottom: 20px solid #FF4B2B;
+      border-right: 20px solid ${mainColor};
+      border-bottom: 20px solid ${mainColor};
       right: 0px;
       bottom: 0px;
     }
@@ -580,7 +594,7 @@ function styleSheet() {
       color: #FFFFFF;
       width: 34px;
       height: 24px;
-      background: #FF4B2B;
+      background: ${mainColor};
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -590,7 +604,7 @@ function styleSheet() {
       -webkit-box-align: center;
           -ms-flex-align: center;
               align-items: center;
-      position: absolute;
+      position: ${salePositionStyle.position};
       -webkit-box-sizing: border-box;
               box-sizing: border-box;
       z-index: 10;
@@ -599,15 +613,30 @@ function styleSheet() {
       left: ${salePositionStyle.left};
       top: ${salePositionStyle.top};
       transform: rotate(${salePositionStyle.rotate}deg);
+      display: inline-flex;
+      text-decoration: none;
+      margin-left: 20px;
     }
     
     .attempt__sale-label::after {
       content: '';
       position: absolute;
       border: 12px solid transparent;
-      border-left: 12px solid #FF4B2B;
+      border-left: 12px solid ${mainColor};
       right: -24px;
       bottom: 0px;
+    }
+
+    .product-item__price-wrapper--decoration {
+      text-decoration: line-through;
+    }
+    
+    .product-item__price-wrapper--attempt {
+      font-size: ${fontSize}px;
+      color: ${mainColor};
+      text-decoration: none;
+      display: inline-block;
+      padding-left: 12px;
     }
     /*# sourceMappingURL=index.css.map */
     `;
@@ -863,16 +892,14 @@ function postScanCode(host, productId) {
         }).then((res) => res.json());
     });
 }
-function fetchCatalogList() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const token = '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';
-        const shopifyHeader = {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': token
-        };
-        return fetch(`/admin/api/2021-10/products.json`, { headers: shopifyHeader }).then(res => res.json());
-    });
-}
+// async function fetchCatalogList () {
+//   const token = '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';
+//   const shopifyHeader = {
+//     'Content-Type': 'application/json',
+//     'X-Shopify-Access-Token': token
+//   };
+//   return fetch(`/admin/api/2021-10/products.json`, {headers: shopifyHeader}).then(res => res.json());
+// }
 function postStartTrade(host, productId, sessionKey) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -940,15 +967,40 @@ function addAttemptLabel(popup) {
         popup.classList.add(activePopupClass);
     });
 }
+function collectionsLabels() {
+    const items = document.querySelectorAll(`.${productItem}`);
+    const itemsArray = Array.from(items);
+    itemsArray.forEach((item, key) => {
+        const link = item.querySelector(`.${productItemLink}`).getAttribute('href').split('/');
+        const length = link.length;
+        if (fakeCatalogApi.includes(link[length - 1])) {
+            console.log('key: ', key, 'link: ', link[length - 1]);
+            const wrapper = item.querySelector(`.${productItemWrapper}`);
+            const price = wrapper.querySelector(`.${productPriceWrapper}`);
+            price.classList.add('product-item__price-wrapper--decoration');
+            const label = document.createElement('div');
+            label.classList.add('attempt__sale-label');
+            label.innerHTML = '%';
+            const salePrice = document.createElement('div');
+            salePrice.classList.add('product-item__price-wrapper--attempt');
+            salePrice.innerText = '500';
+            price.insertAdjacentElement('beforeend', salePrice);
+            if (!salePositionPrice) {
+                wrapper.insertAdjacentElement('beforeend', label);
+            }
+            else {
+                price.insertAdjacentElement('beforeend', label);
+            }
+        }
+    });
+}
 setTimeout(() => __awaiter(this, void 0, void 0, function* () {
     console.log(`Batna script works`);
+    const localhost = window.location.pathname.split('/');
     styleSheet();
-    const addToCartClass = '#AddToCart-product-template';
-    const addToCartButton = document.querySelector(addToCartClass);
     if (addToCartButton) {
         const answerScanCode = yield postScanCode(host, productId);
         if ((answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.data) && (answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.session)) {
-            // styleSheet();
             attempt();
             closePopup();
             addNegotiateButton(addToCartButton);
@@ -979,23 +1031,10 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
             });
         }
     }
-    else {
-        // const catalogMetafields = await fetchCatalogList();
-        // console.log(catalogMetafields);
-        const items = document.querySelectorAll(`.${productItem}`);
-        const itemsArray = Array.from(items);
-        itemsArray.forEach((item, key) => {
-            const link = item.querySelector(`.${productItemLink}`).getAttribute('href').split('/');
-            const length = link.length;
-            if (fakeCatalogApi.includes(link[length - 1])) {
-                const wrapper = item.querySelector(`.${productItemWrapper}`);
-                const label = document.createElement('div');
-                label.classList.add('attempt__sale-label');
-                label.innerHTML = '%';
-                wrapper.insertAdjacentElement('beforeend', label);
-                console.log('key: ', key, 'link: ', link[length - 1]);
-            }
-        });
+    // const catalogMetafields = await fetchCatalogList();
+    // console.log(catalogMetafields);
+    if (localhost.includes('collections')) {
+        collectionsLabels();
     }
 }), 1000);
 //# sourceMappingURL=order__popup.js.map
