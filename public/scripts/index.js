@@ -13,10 +13,12 @@ import { getSessionList, postStartTrade } from './api.js';
 const host = 'https://stage.skidka.vip';
 const productId = '2eabe1c9-3840-4c8e-bb89-a87608c62780';
 const scanCode = `${host}/api/product/${productId}/scan_code`;
+let isStartTrade = false;
+let isChatOpened = false;
 window.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
     onInputEvent();
     try {
-        const sessionList = yield getSessionList;
+        const sessionList = yield getSessionList(host);
         console.log('sessionList: ', sessionList);
         const scanCodeRes = yield fetch(scanCode, {
             method: 'POST'
@@ -26,7 +28,7 @@ window.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void
         const img = answerScanCode.data.screen.product.img_link;
         const price = answerScanCode.data.screen.product.price;
         const sessionKey = answerScanCode.session;
-        console.log('session: ', sessionKey);
+        console.log('sessionKey: ', sessionKey);
         addHeader(img, price);
         startTrade(false, () => postStartTrade(host, productId, sessionKey));
     }

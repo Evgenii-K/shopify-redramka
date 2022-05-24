@@ -1,8 +1,6 @@
 export async function getSessionList(host: string) {
   try {
-    const response = await fetch(`${host}/api/user/session_list`).then(res => res.json())
-    const answer = await response
-    return answer
+    return await fetch(`${host}/api/user/session_list`).then(res => res.json())
   } catch (error) {
     console.log('ошибка: ', error)
   }
@@ -10,14 +8,12 @@ export async function getSessionList(host: string) {
 
 export async function postStartTrade(host: string, productId: string, sessionKey: string) {
   try {
-    const response = await fetch(
+    return await fetch(
         `${host}/api/product/${productId}/start_trade?session=${sessionKey}`,
         {
           method: 'POST'
         }
       ).then(res => res.json())
-    const answer = await response
-    return answer
   } catch (error) {
     console.log('ошибка: ', error)
   }
