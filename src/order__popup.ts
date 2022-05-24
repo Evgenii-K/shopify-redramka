@@ -1,3 +1,9 @@
+const productItemLink = 'product-item__link' // класс ссылки корточки товара в каталоге
+const productItem = 'product-item' // класс карточки товара на странице
+const productItemWrapper = 'product-item__link-wrapper' // класс враппера в карточке
+
+const fakeCatalogApi = ['blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top']
+
 function styleSheet () {
   let style = document.createElement('style');
 
@@ -476,6 +482,86 @@ function styleSheet () {
     .attempt__image-thumbs--down {
       background: url('https://smartptt.dev.redramka.ru/shopify/thumbs_down.png') 0 50%/68px 68px no-repeat;
     }
+
+    .attempt__round-label {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 48px;
+      line-height: 58px;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      width: 90px;
+      height: 90px;
+      background: #FF4B2B;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+          -ms-flex-pack: center;
+              justify-content: center;
+      -webkit-box-align: center;
+          -ms-flex-align: center;
+              align-items: center;
+      position: fixed;
+      -webkit-box-sizing: border-box;
+              box-sizing: border-box;
+      border-radius: 50%;
+      z-index: 10;
+      right: 60px;
+      bottom: 60px;
+      -webkit-box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2);
+              box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+    
+    .attempt__round-label::after {
+      content: '';
+      position: absolute;
+      border: 20px solid transparent;
+      border-right: 20px solid #FF4B2B;
+      border-bottom: 20px solid #FF4B2B;
+      right: 0px;
+      bottom: 0px;
+    }
+    
+    .attempt__sale-label {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 19px;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      width: 34px;
+      height: 24px;
+      background: #FF4B2B;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+          -ms-flex-pack: center;
+              justify-content: center;
+      -webkit-box-align: center;
+          -ms-flex-align: center;
+              align-items: center;
+      position: absolute;
+      -webkit-box-sizing: border-box;
+              box-sizing: border-box;
+      z-index: 10;
+      right: 0px;
+      bottom: 0px;
+      transform: rotate(180deg);
+    }
+    
+    .attempt__sale-label::after {
+      content: '';
+      position: absolute;
+      border: 12px solid transparent;
+      border-left: 12px solid #FF4B2B;
+      right: -24px;
+      bottom: 0px;
+    }
     /*# sourceMappingURL=index.css.map */
     `
 
@@ -512,13 +598,10 @@ function attempt () {
 }
 
 const innerHTMLClass = '.attempt__content'
-// const chatTeg = document.querySelector(innerHTMLClass)
 const messageClass = 'attempt__message'
 const loaderClass = '.attempt__loader'
 const firstMessage = 'attempt__message--first'
 const secondMessage = 'attempt__message--second'
-// const formSubmitButtonClass = '.attempt__form-submit'
-// const formSubmitButtonTag = document.querySelector(formSubmitButtonClass)
 const hiddenClass = '_hidden'
 
 
@@ -532,7 +615,6 @@ const choiceButtonText = {
   ignore: 'NO',
   confirm: 'NEGOTIATE'
 };
-// let answerMessage = '';
 let isChatOpened = false;
 const answers = [
   {}
@@ -606,11 +688,6 @@ function addNegotiateButton (addToCartButton: Element) {
   addToCartButton.after(div);
 }
 
-// function addAnswer (message: string) {
-//   answerMessage = message;
-//   addMessage(messages.answerMessage);
-// }
-
 function answerMessage(text: string) {
   const chatTeg = document.querySelector(innerHTMLClass)
 
@@ -641,32 +718,6 @@ function addMessage(html: string) {
   }
 }
 
-// function addTitle (price: string, image: string) {
-  // if (isFirstLoading) {
-    // const container = document.querySelector('.attempt__card');
-    // container.innerHTML = `
-    //     <img class="attempt__card-image" src="${image}" />
-    //     <div class="attempt__card-content">
-    //       <div class="attempt__card-label">title</div>
-    //       <div class="attempt__card-price">£${price}</div>
-    //       <div class="attempt__card-description">Free delivery on orders over £75.00 • 14 day returns • Pink color • Size M</div>
-    //     </div>
-    // `
-    // isFirstLoading = false;
-  // }
-  
-  // if (isFirstLoading) {
-  //   console.log('first');
-  //   addMessage(messages.loader);
-  //   setTimeout(() => {
-  //     removeLoader();
-  //     addMessage(messages.hi);
-  //     addChoice();
-      
-  //   }, 1000);
-  // }
-// }
-
 function addHeader(img: string, price: string) {
   document.querySelector('.attempt__card').innerHTML = `
     <img class="attempt__card-image" src="${img}"/>
@@ -681,28 +732,6 @@ function addHeader(img: string, price: string) {
 function removeLoader () {
   document.querySelector('.attempt__loader').remove();
 }
-
-// function addChoice () {
-//   addMessage(messages.choice);
-
-//   document.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
-//     document.querySelector('.attempt__choice').remove();
-//     addMessage(messages.no);
-//     setTimeout(() => {
-//       document.querySelector(popupClass).classList.remove(activePopupClass);
-//     }, 1000);
-//   })
-
-//   document.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => {
-//     document.querySelector('.attempt__choice').remove();
-//     addMessage(messages.negotiate);
-//     addMessage(messages.loader);
-//     setTimeout(() => {
-//       removeLoader();
-//       addMessage(messages.compare);
-//     }, 1000);
-//   })
-// }
 
 function submitAttempt (host: string, productId: string, sessionKey: string, postDoAttempt: (host: string, productId: string, sessionKey: string, price: string) => {}) {
   hiddenFormButton(false)
@@ -756,16 +785,6 @@ function areYouSure(host: string, productId: string, sessionKey: string, price: 
     }
   })
 }
-
-// function switchMessage(type: string) {
-//   switch (type) {
-//     case 'areYouSure':
-//       areYouSure();
-//       break;
-//     default:
-//       console.log('type: ', type);
-//   }
-// }
 
 function hiddenFormButton(hidden: boolean) {
   const formButtonClass = '.attempt__form-submit'
@@ -889,8 +908,19 @@ function addChoiceButton(ignore: string, negotiate: string, postStartTrade: () =
   })
 }
 
+function addAttemptLabel(popup: Element) {
+  const label = document.createElement('div')
+  label.classList.add('attempt__round-label')
+  label.innerHTML = '%'
+  document.body.insertAdjacentElement('beforeend', label)
+  label.addEventListener('click', () => {
+    popup.classList.add(activePopupClass);
+  })
+}
+
 setTimeout(async () => {
   console.log(`Batna script works`);
+  styleSheet();
 
   const addToCartClass = '#AddToCart-product-template';
   const addToCartButton = document.querySelector(addToCartClass);
@@ -898,45 +928,65 @@ setTimeout(async () => {
   // const currentHref = window.location.pathname
 
   if (addToCartButton) {
-    styleSheet();
-    attempt();
-    addNegotiateButton(addToCartButton);
-    closePopup();
-
     const host = 'https://stage.skidka.vip'
     const productId = 'cca99975-7381-4101-959a-79002815f0b8'
 
     const answerScanCode = await postScanCode(host, productId)
 
-    let img = ''
-    let price = ''
-    let sessionKey = ''
-
     if (answerScanCode?.data && answerScanCode?.session) {
-      img = answerScanCode.data.screen.product.img_link
-      price = answerScanCode.data.screen.product.price
-      sessionKey = answerScanCode.session
-    }
-
-    if (isFirstLoading) {
-      addHeader(img, price);
-    }
-
-    submitAttempt(host, productId, sessionKey, postDoAttempt);
-
-    const showButton = document.querySelector(showButtonClass);
-    const popup = document.querySelector(popupClass);
-
-    showButton.addEventListener('click', async () => {
-      popup.classList.add(activePopupClass);
-      console.log('red button clicked');
+      // styleSheet();
+      attempt();
+      closePopup();
+      addNegotiateButton(addToCartButton);
+      const img = answerScanCode.data.screen.product.img_link
+      const price = answerScanCode.data.screen.product.price
+      const sessionKey = answerScanCode.session
 
       if (isFirstLoading) {
-        startTrade(false, () => postStartTrade(host, productId, sessionKey))
+        addHeader(img, price);
       }
-    });
+  
+      submitAttempt(host, productId, sessionKey, postDoAttempt);
+  
+      const showButton = document.querySelector(showButtonClass);
+      const popup = document.querySelector(popupClass);
+  
+      showButton.addEventListener('click', () => {
+        popup.classList.add(activePopupClass);
+        console.log('red button clicked');
+  
+        if (isFirstLoading) {
+          startTrade(true, () => postStartTrade(host, productId, sessionKey))
+          addAttemptLabel(popup);
+        }
+      });
+
+      addToCartButton.addEventListener('click', () => {
+        popup.classList.add(activePopupClass);
+        console.log('addToCart button clicked');
+  
+        if (isFirstLoading) {
+          startTrade(false, () => postStartTrade(host, productId, sessionKey))
+          addAttemptLabel(popup);
+        }
+      })
+    }
   } else {
     const catalogMetafields = await fetchCatalogList();
     console.log(catalogMetafields);
+    const items = document.querySelectorAll(`.${productItem}`)
+    const itemsArray = Array.from(items);
+    itemsArray.forEach((item, key) => {
+      const link = item.querySelector(`.${productItemLink}`).getAttribute('href').split('/')
+      const length = link.length
+      if (fakeCatalogApi.includes(link[length - 1])) {
+        const wrapper = item.querySelector(`.${productItemWrapper}`)
+        const label = document.createElement('div')
+        label.classList.add('attempt__sale-label')
+        label.innerHTML = '%'
+        wrapper.insertAdjacentElement('beforeend', label)
+        console.log('key: ', key, 'link: ', link[length - 1]);
+      }
+    })
   }
 }, 1000);
