@@ -1,8 +1,53 @@
 const productItemLink = 'product-item__link' // класс ссылки корточки товара в каталоге
 const productItem = 'product-item' // класс карточки товара на странице
 const productItemWrapper = 'product-item__link-wrapper' // класс враппера в карточке
+const currentHostName = window.location.hostname
+const currentHostProtocol = window.location.protocol
+const host = 'https://stage.skidka.vip'
+// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
+const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
 
-const fakeCatalogApi = ['blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top']
+let salePosition = 'bottomRight'
+interface ISalePositionStyle {
+  [key: string]: string | number
+}
+
+const salePositionStyle: ISalePositionStyle = {
+  top: 'auto',
+  left: 'auto',
+  bottom: 'auto',
+  right: 'auto',
+  rotate: 0
+}
+
+switch(salePosition) {
+  case('bottomRight'):
+    salePositionStyle.bottom = 0;
+    salePositionStyle.right = 0;
+    salePositionStyle.rotate = 180;
+    break;
+  case('topRight'):
+    salePositionStyle.top = 0;
+    salePositionStyle.right = 0;
+    salePositionStyle.rotate = 180;
+    break;
+  case('bottomLeft'):
+    salePositionStyle.bottom = 0;
+    salePositionStyle.left = 0;
+    salePositionStyle.rotate = 0;
+    break;
+  case('topLeft'):
+    salePositionStyle.top = 0;
+    salePositionStyle.left = 0;
+    salePositionStyle.rotate = 0;
+    break;
+  default:
+    console.log('default');
+}
+
+const fakeCatalogApi = [
+  'blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top'
+]
 
 function styleSheet () {
   let style = document.createElement('style');
@@ -549,9 +594,11 @@ function styleSheet () {
       -webkit-box-sizing: border-box;
               box-sizing: border-box;
       z-index: 10;
-      right: 0px;
-      bottom: 0px;
-      transform: rotate(180deg);
+      right: ${salePositionStyle.right};
+      bottom: ${salePositionStyle.bottom};
+      left: ${salePositionStyle.left};
+      top: ${salePositionStyle.top};
+      transform: rotate(${salePositionStyle.rotate}deg);
     }
     
     .attempt__sale-label::after {
@@ -623,7 +670,14 @@ const answers = [
 interface IAnswerStartTrade {
   error: {},
   data: {
-    basket: {},
+    basket: {
+      groups: [
+        {
+          added_products: [],
+          offered_products: []
+        }
+      ]
+    },
     screen: {
       previous_price: number,
       product: {
@@ -655,9 +709,6 @@ const messages = {
              </div>`,
   startTrade: `<div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>`,
   loader: `<div class="attempt__message attempt__loader"><img src="https://smartptt.dev.redramka.ru/shopify/loading.svg" alt="..."></div>`,
-  catalog: `<div class="attempt__choice attempt__choice--answer">
-             <button class="attempt__choice-button attempt__choice-button--more attempt__choice-button--negotiate">See list of marked products (92)</button>
-            </div>`,
   dislike: `<div class="attempt__image-thumbs attempt__image-thumbs--down"></div>`,
   like: `<div class="attempt__image-thumbs attempt__image-thumbs--up"></div>`,
   tooLow: `<div class="attempt__message">Your offer is too low! Try to offer more!</div>`,
@@ -780,9 +831,40 @@ function areYouSure(host: string, productId: string, sessionKey: string, price: 
     addMessage(messages.loader)
     const answerStartTrade = await postDoAttempt(host, productId, sessionKey, price)
     if (!(answerStartTrade as IAnswerStartTrade)?.error && (answerStartTrade as IAnswerStartTrade)?.session) {
+      console.log('postDoAttempt: ', answerStartTrade);
       removeLoader()
-      addMessage(messages.startTrade)
+      addMessage(messages.offerPrice)
+      checkout()
+      addMessage(messages.offerAddMore);
+      const offeredProductsCount = (answerStartTrade as IAnswerStartTrade)?.data.basket.groups[0].offered_products.length
+      offeredProductsCount > 0 ? addCatalogButton(offeredProductsCount) : ''
     }
+  })
+}
+
+function checkout() {
+  const chatTeg = document.querySelector(innerHTMLClass)
+  const popup = document.querySelector(popupClass);
+  addMessage(messages.checkout)
+
+  chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
+    popup.classList.remove(activePopupClass);
+  })
+
+  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
+    popup.classList.remove(activePopupClass);
+    document.location.href = `${currentHostProtocol}//${currentHostName}/cart`
+  })
+}
+
+function addCatalogButton(count: number) {
+  const chatTeg = document.querySelector(innerHTMLClass)
+  const catalog = `<div class="attempt__choice attempt__choice--answer attempt__choice--catalog">
+                    <button class="attempt__choice-button attempt__choice-button--more attempt__choice-button--negotiate">See list of marked products (${count})</button>
+                  </div>`
+  addMessage(catalog)
+  chatTeg.querySelector('.attempt__choice--catalog').addEventListener('click', () => {
+    document.location.href = `${currentHostProtocol}//${currentHostName}/collections/all`
   })
 }
 
@@ -925,12 +1007,7 @@ setTimeout(async () => {
   const addToCartClass = '#AddToCart-product-template';
   const addToCartButton = document.querySelector(addToCartClass);
 
-  // const currentHref = window.location.pathname
-
   if (addToCartButton) {
-    const host = 'https://stage.skidka.vip'
-    const productId = 'cca99975-7381-4101-959a-79002815f0b8'
-
     const answerScanCode = await postScanCode(host, productId)
 
     if (answerScanCode?.data && answerScanCode?.session) {
@@ -972,8 +1049,8 @@ setTimeout(async () => {
       })
     }
   } else {
-    const catalogMetafields = await fetchCatalogList();
-    console.log(catalogMetafields);
+    // const catalogMetafields = await fetchCatalogList();
+    // console.log(catalogMetafields);
     const items = document.querySelectorAll(`.${productItem}`)
     const itemsArray = Array.from(items);
     itemsArray.forEach((item, key) => {
