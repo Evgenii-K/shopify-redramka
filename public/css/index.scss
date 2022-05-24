@@ -359,4 +359,68 @@
       background: url(../img/thumbs_down.png) 0 50%/68px 68px no-repeat;
     }
   }
+
+  &__round-label {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 48px;
+      line-height: 58px;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      width: 90px;
+      height: 90px;
+      background: #FF4B2B;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      box-sizing: border-box;
+      border-radius: 50%;
+      z-index: 10;
+      right: 30px;
+      bottom: 30px;
+      box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+
+      &::after {
+        content: ''; 
+        position: absolute;
+        border: 20px solid transparent;
+        border-right: 20px solid #FF4B2B;
+        border-bottom: 20px solid #FF4B2B;
+        right: 0px;
+        bottom: 0px;
+      }
+  }
+
+  &__sale-label {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 19px;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    width: 34px;
+    height: 24px;
+    background: #FF4B2B;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    box-sizing: border-box;
+    z-index: 10;
+    left: 30px;
+    bottom: 30px;
+
+    &::after {
+      content: ''; 
+      position: absolute;
+      border: 12px solid transparent;
+      border-left: 12px solid #FF4B2B;
+      right: -24px;
+      bottom: 0px;
+    }
+  }
 }
