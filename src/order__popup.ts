@@ -2,8 +2,14 @@ const productItemLink = 'product-item__link' // класс ссылки корт
 const productItem = 'product-item' // класс карточки товара на странице
 const productItemWrapper = 'product-item__link-wrapper' // класс враппера в карточке
 const productPriceWrapper = 'product-item__price-wrapper' // класс враппера цены в катоге товара
-const addToCartClass = '#AddToCart-product-template';
+const addToCartClass = '#AddToCart-product-template'; // класс кнопки добавить в корзину
 const addToCartButton = document.querySelector(addToCartClass);
+const addToCartButtonStyles = window.getComputedStyle(addToCartButton)
+
+const activePopupClass = 'attempt__active';
+const showButtonClass = '.cart__button--negotiate';
+const closeButtonClass = '.attempt__button-close';
+const popupClass = '.attempt__wrapper';
 
 const currentHostName = window.location.hostname
 const currentHostProtocol = window.location.protocol
@@ -17,11 +23,20 @@ const salePositionPrice = true
 const mainColor = '#FF4B2B'
 const fontSize = 15
 
-interface ISalePositionStyle {
+interface IStyle {
   [key: string]: string | number
 }
 
-const salePositionStyle: ISalePositionStyle = {
+const negotiateButtonStyle: IStyle = {
+  fontFamily: addToCartButtonStyles.fontFamily ? addToCartButtonStyles.fontFamily : 'Inter',
+  fontStyle: addToCartButtonStyles.fontStyle ? addToCartButtonStyles.fontStyle : 'normal',
+  fontWeight: addToCartButtonStyles.fontWeight ? addToCartButtonStyles.fontWeight : 400,
+  fontSize: addToCartButtonStyles.fontSize ? addToCartButtonStyles.fontSize : 15,
+  lineHeight: addToCartButtonStyles.lineHeight ? addToCartButtonStyles.lineHeight : 17,
+  letterSpacing: addToCartButtonStyles.letterSpacing ? addToCartButtonStyles.letterSpacing : 0.08
+}
+
+const salePositionStyle: IStyle = {
   top: 'auto',
   left: 'auto',
   bottom: 'auto',
@@ -77,12 +92,12 @@ function styleSheet () {
       width: 100%;
       height: 50px;
       background: ${mainColor};
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 17px;
-      letter-spacing: 0.08em;
+      font-family: ${negotiateButtonStyle.fontFamily};
+      font-style: ${negotiateButtonStyle.fontStyle};
+      font-weight: ${negotiateButtonStyle.fontWeight};
+      font-size: ${negotiateButtonStyle.fontSize}px;
+      line-height: ${negotiateButtonStyle.lineHeight}px;
+      letter-spacing: ${negotiateButtonStyle.letterSpacing}em;
       color: #FFFFFF;
       cursor: pointer;
       margin-top: 10px;
@@ -759,11 +774,6 @@ const messages = {
                  </div>`,
   enterDesired: `<div class="attempt__message">Ok! 👌 Enter your desired price.</div>`,
 }
-
-const activePopupClass = 'attempt__active';
-const showButtonClass = '.cart__button--negotiate';
-const closeButtonClass = '.attempt__button-close';
-const popupClass = '.attempt__wrapper';
 
 function addNegotiateButton (addToCartButton: Element) {
   let div = document.createElement('button');
