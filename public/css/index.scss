@@ -252,6 +252,10 @@
         letter-spacing: -0.408px;
         color: #BBBBBB;
       }
+
+      &:disabled {
+        background: #FFFFFF;
+      }
     }
 
     &-submit {
@@ -264,6 +268,10 @@
       cursor: pointer;
       padding: 0;
       border: 0;
+    }
+
+    &-submit:hover path {
+      fill: #FF4B2B;
     }
   }
 

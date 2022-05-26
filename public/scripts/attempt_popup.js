@@ -44,6 +44,14 @@ let chatPosition = 'right';
 let salePositionPrice = false;
 const mainColor = '#FF4B2B';
 const fontSize = 15;
+const innerHTMLClass = '.attempt__content';
+const messageClass = 'attempt__message';
+const loaderClass = '.attempt__loader';
+const firstMessage = 'attempt__message--first';
+const secondMessage = 'attempt__message--second';
+const hiddenClass = 'attempt__hidden';
+const inputPlaceholder = 'Enter price in USD';
+const inputPlaceholderDisable = 'Aa';
 const negotiateButtonStyle = {
     fontFamily: (addToCartButtonStyles === null || addToCartButtonStyles === void 0 ? void 0 : addToCartButtonStyles.fontFamily) ? addToCartButtonStyles.fontFamily : 'Inter',
     fontStyle: (addToCartButtonStyles === null || addToCartButtonStyles === void 0 ? void 0 : addToCartButtonStyles.fontStyle) ? addToCartButtonStyles.fontStyle : 'normal',
@@ -125,6 +133,10 @@ function styleSheet() {
     }
 
     ._hidden {
+      display: none !important;
+    }
+
+    .attempt__hidden {
       display: none !important;
     }
 
@@ -378,6 +390,10 @@ function styleSheet() {
       color: #BBBBBB;
     }
 
+    .attempt__form-input:disabled {
+      background: #FFFFFF;
+    }
+
     .attempt__form-submit {
       position: absolute;
       width: 56px;
@@ -388,6 +404,10 @@ function styleSheet() {
       cursor: pointer;
       padding: 0;
       border: 0;
+    }
+
+    .attempt__form-submit:hover path {
+      fill: ${mainColor};
     }
 
     .attempt__card {
@@ -687,8 +707,8 @@ function attempt() {
       <div class="attempt__content">
       </div>
       <form id="attempt" class="attempt__form">
-        <input class="attempt__form-item attempt__form-input" type="number" min="1" step="1" placeholder="Aa" disabled="true">
-        <button id="attempt_submit" class="attempt__form-item attempt__form-submit _hidden" type="submit">
+        <input class="attempt__form-item attempt__form-input" type="number" min="1" step="1" placeholder="Aa" disabled>
+        <button id="attempt_submit" class="attempt__form-item attempt__form-submit attempt__hidden" type="submit">
           <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.7825 0.71751C17.6813 0.616765 17.5534 0.547013 17.4139 0.516455C17.2744 0.485897 17.1291 0.495804 16.995 0.54501L0.495001 6.54501C0.352702 6.59898 0.230191 6.69497 0.143739 6.82023C0.0572872 6.94548 0.0109863 7.09407 0.0109863 7.24626C0.0109863 7.39845 0.0572872 7.54704 0.143739 7.67229C0.230191 7.79755 0.352702 7.89354 0.495001 7.94751L6.9375 10.52L11.6925 5.75001L12.75 6.80751L7.9725 11.585L10.5525 18.0275C10.6081 18.1671 10.7043 18.2867 10.8286 18.3709C10.953 18.4552 11.0998 18.5002 11.25 18.5C11.4016 18.4969 11.5486 18.4479 11.6718 18.3596C11.795 18.2712 11.8885 18.1476 11.94 18.005L17.94 1.50501C17.9911 1.37232 18.0034 1.22783 17.9755 1.0884C17.9477 0.948973 17.8807 0.820343 17.7825 0.71751Z" fill="#BBBBBB"/>
           </svg>
@@ -697,16 +717,9 @@ function attempt() {
     </div>
   `;
     document.body.append(div);
+    setInputDisable();
     popup = document.querySelector(popupClass);
 }
-const innerHTMLClass = '.attempt__content';
-const messageClass = 'attempt__message';
-const loaderClass = '.attempt__loader';
-const firstMessage = 'attempt__message--first';
-const secondMessage = 'attempt__message--second';
-const hiddenClass = '_hidden';
-const inputPlaceholder = 'Enter price in USD';
-const inputPlaceholderDisable = 'Aa';
 let previous_price = 0;
 let price_discount = 0;
 let itemName = '';
@@ -722,6 +735,31 @@ let attemptCount = 0;
 const choiceButtonText = {
     ignore: 'NO',
     confirm: 'NEGOTIATE'
+};
+const fakeScanCode = {
+    error: {},
+    data: {
+        basket: {
+            groups: [
+                {
+                    added_products: [],
+                    offered_products: []
+                }
+            ]
+        },
+        screen: {
+            previous_price: 5000,
+            product: {
+                is_last_attempt: false,
+                price: 7260,
+                price_discount: 6475,
+                display_price: 7000,
+                category: 'Blue Silk Tuxedo',
+                img_link: 'https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg'
+            }
+        }
+    },
+    session: '46a31ac1-2c17-4071-b103-2a40bcbfc780'
 };
 const messages = {
     hi: `<div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>
@@ -770,7 +808,7 @@ function addNegotiateButton(addToCartButton) {
     div.innerHTML = 'NEGOTIATE A PRICE';
     addToCartButton.after(div);
 }
-function removeAddNegotiateButton() {
+function removeNegotiateButton() {
     document.querySelector('.cart__button--negotiate').remove();
 }
 function answerMessage(text) {
@@ -792,7 +830,6 @@ function setInputDisable() {
     input.setAttribute('disabled', '');
     input.placeholder = inputPlaceholderDisable;
     button.classList.add(hiddenClass);
-    console.log('button: ', button);
     isInputHidden = true;
 }
 function removeInputDisable() {
@@ -802,7 +839,6 @@ function removeInputDisable() {
     input.removeAttribute('disabled');
     input.placeholder = inputPlaceholder;
     button.classList.remove(hiddenClass);
-    console.log('remove');
     isInputHidden = false;
 }
 function scrollChat(chatTeg) {
@@ -868,18 +904,19 @@ function removeLoader() {
     document.querySelector('.attempt__loader').remove();
 }
 function submitAttempt() {
-    hiddenFormButton(false);
     document.querySelector('#attempt').addEventListener('submit', (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
         setInputDisable();
         const input = document.querySelector('.attempt__form-input');
         if (isLastAttempt) {
             areYouSure(input.value);
+            input.value = '';
         }
         else {
             addMessage(messages.loader, false);
             const doAttemptAnswer = yield postDoAttempt(host, productId, sessionKey, input.value);
             removeLoader();
+            input.value = '';
             console.log('doAttemptAnswer: ', doAttemptAnswer);
             if (doAttemptAnswer === null || doAttemptAnswer === void 0 ? void 0 : doAttemptAnswer.data.screen.previous_price) {
                 previous_price = doAttemptAnswer.data.screen.previous_price;
@@ -930,7 +967,7 @@ function attemptEnded(price, loadingFromChat) {
                     addMessage(messages.offerAddMore, false);
                     addCatalogButton(offeredProductsCount);
                 }
-                removeAddNegotiateButton();
+                removeNegotiateButton();
             }
         }
         else {
@@ -951,7 +988,7 @@ function previewSessionOpen() {
     chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
         chatTeg.querySelector('.attempt__choice').remove();
         addHeader(img, price);
-        startTrade(true, () => postStartTrade(host, productId, sessionKey));
+        startTrade(true);
     }));
 }
 function checkout() {
@@ -975,16 +1012,7 @@ function addCatalogButton(count) {
     chatTeg.querySelector('.attempt__choice--catalog').addEventListener('click', () => {
         document.location.href = `${currentHostProtocol}//${currentHostName}/collections/all`;
     });
-}
-function hiddenFormButton(hidden) {
-    const formButtonClass = '.attempt__form-submit';
-    const formButton = document.querySelector(formButtonClass);
-    if (hidden) {
-        formButton.classList.add(hiddenClass);
-    }
-    else {
-        formButton.classList.remove(hiddenClass);
-    }
+    scrollChat(chatTeg);
 }
 function postDoAttempt(host, productId, sessionKey, price) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1018,7 +1046,9 @@ function postScanCode(host, productId) {
         const scanCode = `${host}/api/product/${productId}/scan_code`;
         return yield fetch(scanCode, {
             method: 'POST'
-        }).then((res) => res.json());
+        })
+            .then((res) => res.json())
+            .catch(() => fakeScanCode);
     });
 }
 function postStartTrade(host, productId, sessionKey) {
@@ -1033,14 +1063,14 @@ function postStartTrade(host, productId, sessionKey) {
         }
     });
 }
-function startTrade(negotiate, postStartTrade) {
+function startTrade(negotiate) {
     return __awaiter(this, void 0, void 0, function* () {
         isFirstLoading = false;
         if (negotiate) {
             addMessage(messages.hi, false);
             answerMessage('Negotiate');
             addMessage(messages.loader, false);
-            const answerStartTrade = yield postStartTrade();
+            const answerStartTrade = yield postStartTrade(host, productId, sessionKey);
             if (!answerStartTrade.error && answerStartTrade.session) {
                 removeLoader();
                 isStartTrade = true;
@@ -1053,7 +1083,7 @@ function startTrade(negotiate, postStartTrade) {
             setTimeout(() => {
                 removeLoader();
                 addMessage(messages.hi, false);
-                addChoiceButton('NO', 'NEGOTIATE', postStartTrade);
+                addChoiceButton('NO', 'NEGOTIATE');
             }, 1000);
         }
     });
@@ -1062,29 +1092,32 @@ function getSession() {
     return __awaiter(this, void 0, void 0, function* () {
         const data = {
             'attempt': true,
-            'attempt_option': 1
+            'attempt_option': 0
         };
         return data;
     });
 }
-function addChoiceButton(ignore, negotiate, postStartTrade) {
+function addChoiceButton(ignore, negotiate) {
     const chatTeg = document.querySelector(innerHTMLClass);
     const choiceButtonBlock = `<div class="attempt__choice">
       <button class="attempt__choice-button attempt__choice-button--ignore">${ignore}</button>
       <button class="attempt__choice-button attempt__choice-button--negotiate">${negotiate}</button>
     </div>
   `;
-    scrollChat(chatTeg);
     addMessage(choiceButtonBlock, false);
     chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
         chatTeg.querySelector('.attempt__choice').remove();
         answerMessage(ignore);
+        attemptCount += 1;
+        if (attemptCount > 1) {
+            removeNegotiateButton();
+        }
     });
     chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
         chatTeg.querySelector('.attempt__choice').remove();
         answerMessage(negotiate);
         addMessage(messages.loader, false);
-        const answerStartTrade = yield postStartTrade();
+        const answerStartTrade = yield postStartTrade(host, productId, sessionKey);
         if (!(answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.error) && (answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.session)) {
             removeLoader();
             isStartTrade = true;
@@ -1093,7 +1126,7 @@ function addChoiceButton(ignore, negotiate, postStartTrade) {
         }
     }));
 }
-function addAttemptLabel(popup) {
+function addAttemptLabel() {
     const label = document.createElement('div');
     label.classList.add('attempt__round-label');
     label.innerHTML = '%';
@@ -1153,14 +1186,15 @@ function cartLabels() {
         }
     });
 }
-function productLabel(displayPrice) {
-    const sale = createLabel(displayPrice);
+function productLabel(displayPrice, priceDiscount) {
+    const sale = createLabel(displayPrice, priceDiscount);
     const price = document.querySelector(`.${productCardPrice}`);
     price.classList.add('product-item__price-wrapper--decoration');
     price.insertAdjacentElement('beforeend', sale.salePrice);
+    price.insertAdjacentElement('beforeend', sale.extraPrice);
     price.insertAdjacentElement('beforeend', sale.label);
 }
-function createLabel(displayPrice) {
+function createLabel(displayPrice, priceDiscount) {
     const label = document.createElement('div');
     label.style.display = 'inline-block';
     const labelContent = document.createElement('div');
@@ -1170,7 +1204,11 @@ function createLabel(displayPrice) {
     const salePrice = document.createElement('div');
     salePrice.classList.add('product-item__price-wrapper--attempt');
     salePrice.innerText = displayPrice;
-    return { label, salePrice };
+    const extraPrice = document.createElement('div');
+    extraPrice.classList.add('product-item__price-wrapper--attempt');
+    extraPrice.innerText = `£${priceDiscount} if you buy an extra item marked by`;
+    extraPrice.style.paddingLeft = '0px';
+    return { label, salePrice, extraPrice };
 }
 setTimeout(() => __awaiter(this, void 0, void 0, function* () {
     console.log(`Batna script works`);
@@ -1182,15 +1220,15 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
         if ((answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.data) && (answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.session) && (previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) !== 3) {
             attempt();
             closePopup();
-            addNegotiateButton(addToCartButton);
-            const showButton = document.querySelector(showButtonClass);
             sessionKey = answerScanCode.session;
             itemName = answerScanCode.data.screen.product.category;
             img = answerScanCode.data.screen.product.img_link;
             price = answerScanCode.data.screen.product.price;
             const displayPrice = answerScanCode.data.screen.product.display_price;
+            const priceDiscount = answerScanCode.data.screen.product.price_discount;
             if (displayPrice) {
-                productLabel(displayPrice);
+                priceDiscount ? priceDiscount : '';
+                productLabel(displayPrice, priceDiscount);
             }
             if (isFirstLoading) {
                 addHeader(img, price);
@@ -1206,49 +1244,51 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                 isInputHidden = chat.isInputHidden;
                 if (isStartTrade) {
                     setChat(chat.chatHTML);
-                    addAttemptLabel(popup);
+                    addAttemptLabel();
                 }
-                if (!isInputHidden) {
+                if (isInputHidden) {
                     removeInputDisable();
                 }
             }
-            showButton.addEventListener('click', () => {
-                popup.classList.add(activePopupClass);
-                console.log('red button clicked');
-                if (!isStartTrade && previewSession.attempt_option !== 2) {
-                    startTrade(true, () => postStartTrade(host, productId, sessionKey));
-                    addAttemptLabel(popup);
-                }
-                if (previewSession.attempt_option === 2) {
-                    previewSessionOpen();
-                }
-            });
+            if (!previewSession.attempt && previewSession.attempt_option === 1) {
+                addAttemptLabel();
+                setInputDisable();
+                attemptEnded('', true);
+            }
+            else {
+                addNegotiateButton(addToCartButton);
+                const showButton = document.querySelector(showButtonClass);
+                showButton.addEventListener('click', () => {
+                    popup.classList.add(activePopupClass);
+                    console.log('red button clicked');
+                    if (!isStartTrade && previewSession.attempt_option !== 2) {
+                        startTrade(true);
+                        addAttemptLabel();
+                    }
+                    if (previewSession.attempt_option === 2) {
+                        previewSessionOpen();
+                    }
+                });
+            }
             addToCartButton.addEventListener('click', () => {
-                if ((previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) === 3)
+                if ((previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) === 3 || attemptCount > 1)
                     return;
                 popup.classList.add(activePopupClass);
                 console.log('addToCart button clicked');
                 if (!isStartTrade && previewSession.attempt_option !== 2) {
-                    startTrade(false, () => postStartTrade(host, productId, sessionKey));
-                    addAttemptLabel(popup);
+                    startTrade(false);
+                    addAttemptLabel();
                 }
                 if (previewSession.attempt_option === 2) {
                     previewSessionOpen();
                 }
             });
-            if (previewSession.attempt && isAttemptEnded) {
-                switch (previewSession.attempt_option) {
-                    case (1):
-                        attemptEnded('', true);
-                        break;
-                }
-            }
         }
         else if ((previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) === 3 && chat) {
             attempt();
             closePopup();
             setChat(chat.chatHTML);
-            addAttemptLabel(popup);
+            addAttemptLabel();
             attemptEnded('', true);
         }
     }

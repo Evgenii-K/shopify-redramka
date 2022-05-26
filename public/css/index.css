@@ -299,6 +299,10 @@
   color: #BBBBBB;
 }
 
+.attempt__form-input:disabled {
+  background: #FFFFFF;
+}
+
 .attempt__form-submit {
   position: absolute;
   width: 56px;
@@ -309,6 +313,10 @@
   cursor: pointer;
   padding: 0;
   border: 0;
+}
+
+.attempt__form-submit:hover path {
+  fill: #FF4B2B;
 }
 
 .attempt__card {

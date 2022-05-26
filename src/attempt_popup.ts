@@ -42,6 +42,15 @@ let salePositionPrice = false
 const mainColor = '#FF4B2B'
 const fontSize = 15
 
+const innerHTMLClass = '.attempt__content'
+const messageClass = 'attempt__message'
+const loaderClass = '.attempt__loader'
+const firstMessage = 'attempt__message--first'
+const secondMessage = 'attempt__message--second'
+const hiddenClass = 'attempt__hidden'
+const inputPlaceholder = 'Enter price in USD'
+const inputPlaceholderDisable = 'Aa'
+
 interface IStyle {
   [key: string]: string | number
 }
@@ -133,6 +142,10 @@ function styleSheet () {
     }
 
     ._hidden {
+      display: none !important;
+    }
+
+    .attempt__hidden {
       display: none !important;
     }
 
@@ -386,6 +399,10 @@ function styleSheet () {
       color: #BBBBBB;
     }
 
+    .attempt__form-input:disabled {
+      background: #FFFFFF;
+    }
+
     .attempt__form-submit {
       position: absolute;
       width: 56px;
@@ -396,6 +413,10 @@ function styleSheet () {
       cursor: pointer;
       padding: 0;
       border: 0;
+    }
+
+    .attempt__form-submit:hover path {
+      fill: ${mainColor};
     }
 
     .attempt__card {
@@ -697,8 +718,8 @@ function attempt () {
       <div class="attempt__content">
       </div>
       <form id="attempt" class="attempt__form">
-        <input class="attempt__form-item attempt__form-input" type="number" min="1" step="1" placeholder="Aa" disabled="true">
-        <button id="attempt_submit" class="attempt__form-item attempt__form-submit _hidden" type="submit">
+        <input class="attempt__form-item attempt__form-input" type="number" min="1" step="1" placeholder="Aa" disabled>
+        <button id="attempt_submit" class="attempt__form-item attempt__form-submit attempt__hidden" type="submit">
           <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.7825 0.71751C17.6813 0.616765 17.5534 0.547013 17.4139 0.516455C17.2744 0.485897 17.1291 0.495804 16.995 0.54501L0.495001 6.54501C0.352702 6.59898 0.230191 6.69497 0.143739 6.82023C0.0572872 6.94548 0.0109863 7.09407 0.0109863 7.24626C0.0109863 7.39845 0.0572872 7.54704 0.143739 7.67229C0.230191 7.79755 0.352702 7.89354 0.495001 7.94751L6.9375 10.52L11.6925 5.75001L12.75 6.80751L7.9725 11.585L10.5525 18.0275C10.6081 18.1671 10.7043 18.2867 10.8286 18.3709C10.953 18.4552 11.0998 18.5002 11.25 18.5C11.4016 18.4969 11.5486 18.4479 11.6718 18.3596C11.795 18.2712 11.8885 18.1476 11.94 18.005L17.94 1.50501C17.9911 1.37232 18.0034 1.22783 17.9755 1.0884C17.9477 0.948973 17.8807 0.820343 17.7825 0.71751Z" fill="#BBBBBB"/>
           </svg>
@@ -707,17 +728,9 @@ function attempt () {
     </div>
   `
   document.body.append(div);
+  setInputDisable()
   popup = document.querySelector(popupClass);
 }
-
-const innerHTMLClass = '.attempt__content'
-const messageClass = 'attempt__message'
-const loaderClass = '.attempt__loader'
-const firstMessage = 'attempt__message--first'
-const secondMessage = 'attempt__message--second'
-const hiddenClass = '_hidden'
-const inputPlaceholder = 'Enter price in USD'
-const inputPlaceholderDisable = 'Aa'
 
 let previous_price = 0;
 let price_discount = 0;
@@ -753,11 +766,40 @@ interface IAnswerStartTrade {
       product: {
         is_last_attempt: boolean,
         price: number,
-        price_discount: number
+        price_discount: number,
+        display_price: number,
+        category: string,
+        img_link: string
       }
     }
   },
   session: string
+}
+
+const fakeScanCode: IAnswerStartTrade = {
+  error: {},
+  data: {
+    basket: {
+      groups: [
+        {
+          added_products: [],
+          offered_products: []
+        }
+      ]
+    },
+    screen: {
+      previous_price: 5000,
+      product: {
+        is_last_attempt: false,
+        price: 7260,
+        price_discount: 6475,
+        display_price: 7000,
+        category: 'Blue Silk Tuxedo',
+        img_link: 'https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg'
+      }
+    }
+  },
+  session: '46a31ac1-2c17-4071-b103-2a40bcbfc780'
 }
 
 const messages = {
@@ -802,14 +844,14 @@ const messages = {
   enterDesired: `<div class="attempt__message">Ok! 👌 Enter your desired price.</div>`,
 }
 
-function addNegotiateButton (addToCartButton: Element) {
+function addNegotiateButton(addToCartButton: Element) {
   let div = document.createElement('button');
   div.classList.add('cart__button', 'cart__button--negotiate');
   div.innerHTML = 'NEGOTIATE A PRICE';
   addToCartButton.after(div);
 }
 
-function removeAddNegotiateButton() {
+function removeNegotiateButton() {
   document.querySelector('.cart__button--negotiate').remove()
 }
 
@@ -836,10 +878,9 @@ function setInputDisable() {
   const button = form.querySelector('button')
 
   input.setAttribute('disabled', '')
-  input.placeholder = inputPlaceholderDisable
-  button.classList.add(hiddenClass)
+  input.placeholder = inputPlaceholderDisable;
 
-  console.log('button: ', button);
+  button.classList.add(hiddenClass);
 
   isInputHidden = true
 }
@@ -852,8 +893,6 @@ function removeInputDisable() {
   input.removeAttribute('disabled')
   input.placeholder = inputPlaceholder
   button.classList.remove(hiddenClass)
-
-  console.log('remove');
 
   isInputHidden = false
 }
@@ -931,8 +970,6 @@ function removeLoader() {
 }
 
 function submitAttempt () {
-  hiddenFormButton(false)
-
   document.querySelector('#attempt').addEventListener('submit', async (e) => {
     e.preventDefault();
     setInputDisable()
@@ -940,10 +977,12 @@ function submitAttempt () {
 
     if (isLastAttempt) {
       areYouSure(input.value)
+      input.value = ''
     } else {
       addMessage(messages.loader, false)
       const doAttemptAnswer = await postDoAttempt(host, productId, sessionKey, input.value)
       removeLoader()
+      input.value = ''
       console.log('doAttemptAnswer: ', doAttemptAnswer);
       if ((doAttemptAnswer as IAnswerStartTrade)?.data.screen.previous_price) {
         previous_price = (doAttemptAnswer as IAnswerStartTrade).data.screen.previous_price
@@ -998,7 +1037,7 @@ async function attemptEnded(price: string, loadingFromChat: boolean) {
         addMessage(messages.offerAddMore, false)
         addCatalogButton(offeredProductsCount)
       }
-      removeAddNegotiateButton()
+      removeNegotiateButton()
     }
   } else {
     addMessage(messages.offerPrice, false)
@@ -1021,7 +1060,7 @@ function previewSessionOpen() {
   chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
     chatTeg.querySelector('.attempt__choice').remove()
     addHeader(img, price);
-    startTrade(true, () => postStartTrade(host, productId, sessionKey))
+    startTrade(true)
   })
 }
 
@@ -1049,17 +1088,8 @@ function addCatalogButton(count: number) {
   chatTeg.querySelector('.attempt__choice--catalog').addEventListener('click', () => {
     document.location.href = `${currentHostProtocol}//${currentHostName}/collections/all`
   })
-}
 
-function hiddenFormButton(hidden: boolean) {
-  const formButtonClass = '.attempt__form-submit'
-  const formButton = document.querySelector(formButtonClass)
-
-  if (hidden) {
-    formButton.classList.add(hiddenClass)
-  } else {
-    formButton.classList.remove(hiddenClass)
-  }
+  scrollChat(chatTeg)
 }
 
 async function postDoAttempt(host: string, productId: string, sessionKey: string, price: string) {
@@ -1097,7 +1127,10 @@ async function postScanCode(host: string, productId: string) {
     {
       method: 'POST'
     }
-  ).then((res) => res.json())
+  )
+  .then((res) => res.json())
+  .catch(() => fakeScanCode)
+
 }
 
 async function postStartTrade(host: string, productId: string, sessionKey: string) {
@@ -1113,13 +1146,13 @@ async function postStartTrade(host: string, productId: string, sessionKey: strin
   }
 }
 
-async function startTrade(negotiate: boolean, postStartTrade: () => {}) {
+async function startTrade(negotiate: boolean) {
   isFirstLoading = false
   if (negotiate) {
     addMessage(messages.hi, false)
     answerMessage('Negotiate')
     addMessage(messages.loader, false)
-    const answerStartTrade = await postStartTrade()
+    const answerStartTrade = await postStartTrade(host, productId, sessionKey)
     if (!(answerStartTrade as IAnswerStartTrade).error && (answerStartTrade as IAnswerStartTrade).session) {
       removeLoader()
       isStartTrade = true
@@ -1131,7 +1164,7 @@ async function startTrade(negotiate: boolean, postStartTrade: () => {}) {
     setTimeout(() => {
       removeLoader()
       addMessage(messages.hi, false)
-      addChoiceButton('NO', 'NEGOTIATE', postStartTrade)
+      addChoiceButton('NO', 'NEGOTIATE')
     }, 1000);
   }
 }
@@ -1139,12 +1172,12 @@ async function startTrade(negotiate: boolean, postStartTrade: () => {}) {
 async function getSession() {
   const data = {
     'attempt': true,
-    'attempt_option': 1
+    'attempt_option': 0
   }
   return data
 }
 
-function addChoiceButton(ignore: string, negotiate: string, postStartTrade: () => {}) {
+function addChoiceButton(ignore: string, negotiate: string) {
   const chatTeg = document.querySelector(innerHTMLClass)
 
   const choiceButtonBlock = `<div class="attempt__choice">
@@ -1153,20 +1186,22 @@ function addChoiceButton(ignore: string, negotiate: string, postStartTrade: () =
     </div>
   `
 
-  scrollChat(chatTeg)
-
   addMessage(choiceButtonBlock, false)
 
   chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
     chatTeg.querySelector('.attempt__choice').remove()
     answerMessage(ignore)
+    attemptCount += 1
+    if (attemptCount > 1) {
+      removeNegotiateButton()
+    }
   })
 
   chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
     chatTeg.querySelector('.attempt__choice').remove()
     answerMessage(negotiate)
     addMessage(messages.loader, false)
-    const answerStartTrade = await postStartTrade()
+    const answerStartTrade = await postStartTrade(host, productId, sessionKey)
     if (!(answerStartTrade as IAnswerStartTrade)?.error && (answerStartTrade as IAnswerStartTrade)?.session) {
       removeLoader()
       isStartTrade = true
@@ -1176,7 +1211,7 @@ function addChoiceButton(ignore: string, negotiate: string, postStartTrade: () =
   })
 }
 
-function addAttemptLabel(popup: Element) {
+function addAttemptLabel() {
   const label = document.createElement('div')
   label.classList.add('attempt__round-label')
   label.innerHTML = '%'
@@ -1251,18 +1286,19 @@ function cartLabels() {
   })
 }
 
-function productLabel(displayPrice: string) {
+function productLabel(displayPrice: string, priceDiscount?: string) {
 
-  const sale = createLabel(displayPrice)
+  const sale = createLabel(displayPrice, priceDiscount)
 
   const price = document.querySelector(`.${productCardPrice}`)
   price.classList.add('product-item__price-wrapper--decoration')
 
   price.insertAdjacentElement('beforeend', sale.salePrice)
+  price.insertAdjacentElement('beforeend', sale.extraPrice)
   price.insertAdjacentElement('beforeend', sale.label)
 }
 
-function createLabel(displayPrice: string) {
+function createLabel(displayPrice: string, priceDiscount?: string) {
   const label = document.createElement('div')
   label.style.display = 'inline-block'
 
@@ -1276,7 +1312,12 @@ function createLabel(displayPrice: string) {
   salePrice.classList.add('product-item__price-wrapper--attempt')
   salePrice.innerText = displayPrice
 
-  return {label, salePrice}
+  const extraPrice = document.createElement('div')
+  extraPrice.classList.add('product-item__price-wrapper--attempt')
+  extraPrice.innerText = `£${priceDiscount} if you buy an extra item marked by`
+  extraPrice.style.paddingLeft = '0px'
+
+  return {label, salePrice, extraPrice}
 }
 
 setTimeout(async () => {
@@ -1291,17 +1332,17 @@ setTimeout(async () => {
     if (answerScanCode?.data && answerScanCode?.session && previewSession?.attempt_option !== 3) {
       attempt();
       closePopup();
-      addNegotiateButton(addToCartButton);
-      const showButton = document.querySelector(showButtonClass);
 
       sessionKey = answerScanCode.session
       itemName = answerScanCode.data.screen.product.category
       img = answerScanCode.data.screen.product.img_link
       price = answerScanCode.data.screen.product.price
       const displayPrice = answerScanCode.data.screen.product.display_price
+      const priceDiscount = answerScanCode.data.screen.product.price_discount
 
       if (displayPrice) {
-        productLabel(displayPrice)
+        priceDiscount ? priceDiscount : ''
+        productLabel(displayPrice, priceDiscount)
       }
       
       if (isFirstLoading) {
@@ -1321,55 +1362,56 @@ setTimeout(async () => {
         isInputHidden = chat.isInputHidden
         if (isStartTrade) {
           setChat(chat.chatHTML)
-          addAttemptLabel(popup);
+          addAttemptLabel();
         }
 
-        if (!isInputHidden) {
+        if (isInputHidden) {
           removeInputDisable()
         }
       }
-  
-      showButton.addEventListener('click', () => {
-        popup.classList.add(activePopupClass);
-        console.log('red button clicked');
-  
-        if (!isStartTrade && previewSession.attempt_option !== 2) {
-          startTrade(true, () => postStartTrade(host, productId, sessionKey))
-          addAttemptLabel(popup);
-        }
 
-        if (previewSession.attempt_option === 2) {
-          previewSessionOpen();
-        }
-      });
+      if (!previewSession.attempt && previewSession.attempt_option === 1) {
+        addAttemptLabel();
+        setInputDisable();
+        attemptEnded('', true);
+      } else {
+        addNegotiateButton(addToCartButton);
+        const showButton = document.querySelector(showButtonClass);
+
+        showButton.addEventListener('click', () => {
+          popup.classList.add(activePopupClass);
+          console.log('red button clicked');
+    
+          if (!isStartTrade && previewSession.attempt_option !== 2) {
+            startTrade(true)
+            addAttemptLabel();
+          }
+
+          if (previewSession.attempt_option === 2) {
+            previewSessionOpen();
+          }
+        });
+      }
 
       addToCartButton.addEventListener('click', () => {
-        if (previewSession?.attempt_option === 3) return
+        if (previewSession?.attempt_option === 3 || attemptCount > 1) return
         popup.classList.add(activePopupClass);
         console.log('addToCart button clicked');
   
         if (!isStartTrade && previewSession.attempt_option !== 2) {
-          startTrade(false, () => postStartTrade(host, productId, sessionKey))
-          addAttemptLabel(popup);
+          startTrade(false)
+          addAttemptLabel();
         }
 
         if (previewSession.attempt_option === 2) {
           previewSessionOpen();
         }
       })
-
-      if (previewSession.attempt && isAttemptEnded) {
-        switch(previewSession.attempt_option) {
-          case(1): 
-            attemptEnded('', true);
-            break;
-        }
-      }
     } else if (previewSession?.attempt_option === 3 && chat) {
       attempt()
       closePopup()
       setChat(chat.chatHTML)
-      addAttemptLabel(popup)
+      addAttemptLabel()
       attemptEnded('', true)
     }
   }
