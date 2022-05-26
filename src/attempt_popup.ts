@@ -26,17 +26,18 @@ const activePopupContentClass = 'attempt__content'
 const showButtonClass = '.cart__button--negotiate'
 const closeButtonClass = '.attempt__button-close'
 const popupClass = '.attempt__wrapper'
+let popup = document.querySelector(popupClass);
 
 const currentHostName = window.location.hostname
 const currentHostProtocol = window.location.protocol
 
 const host = 'https://stage.skidka.vip'
-const productId = 'cca99975-7381-4101-959a-79002815f0b8'
-// const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
+// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
+const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
 let sessionKey = ''
 
 let salePosition = 'bottomRight'
-let chatPosition = 'left'
+let chatPosition = 'right'
 let salePositionPrice = false
 const mainColor = '#FF4B2B'
 const fontSize = 15
@@ -63,7 +64,7 @@ const salePositionStyle: IStyle = {
   position: 'absolute'
 }
 
-if (salePositionPrice && !localhost.includes('collections')) {
+if (salePositionPrice || !localhost.includes('collections')) {
   salePosition = 'onPrice'
 }
 
@@ -706,6 +707,7 @@ function attempt () {
     </div>
   `
   document.body.append(div);
+  popup = document.querySelector(popupClass);
 }
 
 const innerHTMLClass = '.attempt__content'
@@ -807,10 +809,16 @@ function addNegotiateButton (addToCartButton: Element) {
   addToCartButton.after(div);
 }
 
+function removeAddNegotiateButton() {
+  document.querySelector('.cart__button--negotiate').remove()
+}
+
 function answerMessage(text: string) {
   const chatTeg = document.querySelector(innerHTMLClass)
 
   chatTeg.insertAdjacentHTML('beforeend', `<div class="attempt__message attempt__message--answer">${text}</div>`)
+
+  scrollChat(chatTeg)
 }
 
 function closePopup() {
@@ -831,6 +839,8 @@ function setInputDisable() {
   input.placeholder = inputPlaceholderDisable
   button.classList.add(hiddenClass)
 
+  console.log('button: ', button);
+
   isInputHidden = true
 }
 
@@ -843,14 +853,22 @@ function removeInputDisable() {
   input.placeholder = inputPlaceholder
   button.classList.remove(hiddenClass)
 
+  console.log('remove');
+
   isInputHidden = false
+}
+
+function scrollChat(chatTeg: Element) {
+  setTimeout(() => {
+    chatTeg.scrollTop = chatTeg.scrollHeight
+  }, 500)
 }
 
 function addMessage(html: string, record: boolean) {
   const chatTeg = document.querySelector(innerHTMLClass)
 
-  chatTeg.scrollTop = chatTeg.scrollHeight
-
+  scrollChat(chatTeg)
+  
   chatTeg.insertAdjacentHTML('beforeend', html)
   const nodeListLength = chatTeg.childNodes.length
   const firstLastNode = chatTeg.childNodes[nodeListLength - 2] as Element
@@ -917,12 +935,12 @@ function submitAttempt () {
 
   document.querySelector('#attempt').addEventListener('submit', async (e) => {
     e.preventDefault();
+    setInputDisable()
     const input: HTMLInputElement = document.querySelector('.attempt__form-input');
 
     if (isLastAttempt) {
       areYouSure(input.value)
     } else {
-      setInputDisable()
       addMessage(messages.loader, false)
       const doAttemptAnswer = await postDoAttempt(host, productId, sessionKey, input.value)
       removeLoader()
@@ -958,16 +976,16 @@ function areYouSure(price: string) {
     chatTeg.querySelector('.attempt__choice').remove()
     answerMessage('Yes, I’m sure')
     isAttemptEnded = true
-    attemptEnded(price)
+    attemptEnded(price, false)
   })
 }
 
-async function attemptEnded(price?: string) {
+async function attemptEnded(price: string, loadingFromChat: boolean) {
   isAttemptEnded = true
   setLocalStorage()
   addMessage(messages.like, false)
   addMessage(messages.congratulations, false)
-  if (price) {
+  if (!loadingFromChat) {
     addMessage(messages.loader, false)
     const answerStartTrade = await postDoAttempt(host, productId, sessionKey, price)
     if (!(answerStartTrade as IAnswerStartTrade)?.error && (answerStartTrade as IAnswerStartTrade)?.session) {
@@ -980,6 +998,7 @@ async function attemptEnded(price?: string) {
         addMessage(messages.offerAddMore, false)
         addCatalogButton(offeredProductsCount)
       }
+      removeAddNegotiateButton()
     }
   } else {
     addMessage(messages.offerPrice, false)
@@ -1134,6 +1153,8 @@ function addChoiceButton(ignore: string, negotiate: string, postStartTrade: () =
     </div>
   `
 
+  scrollChat(chatTeg)
+
   addMessage(choiceButtonBlock, false)
 
   chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
@@ -1264,11 +1285,15 @@ setTimeout(async () => {
 
   if (addToCartButton) {
     const answerScanCode = await postScanCode(host, productId)
+    const previewSession = await getSession()
+    const chat = getLocalStorage()
 
-    if (answerScanCode?.data && answerScanCode?.session) {
+    if (answerScanCode?.data && answerScanCode?.session && previewSession?.attempt_option !== 3) {
       attempt();
       closePopup();
       addNegotiateButton(addToCartButton);
+      const showButton = document.querySelector(showButtonClass);
+
       sessionKey = answerScanCode.session
       itemName = answerScanCode.data.screen.product.category
       img = answerScanCode.data.screen.product.img_link
@@ -1284,9 +1309,6 @@ setTimeout(async () => {
       }
 
       submitAttempt();
-  
-      const showButton = document.querySelector(showButtonClass);
-      const popup = document.querySelector(popupClass);
 
       const chat = getLocalStorage()
 
@@ -1306,8 +1328,6 @@ setTimeout(async () => {
           removeInputDisable()
         }
       }
-
-      const previewSession = await getSession()
   
       showButton.addEventListener('click', () => {
         popup.classList.add(activePopupClass);
@@ -1324,6 +1344,7 @@ setTimeout(async () => {
       });
 
       addToCartButton.addEventListener('click', () => {
+        if (previewSession?.attempt_option === 3) return
         popup.classList.add(activePopupClass);
         console.log('addToCart button clicked');
   
@@ -1340,10 +1361,16 @@ setTimeout(async () => {
       if (previewSession.attempt && isAttemptEnded) {
         switch(previewSession.attempt_option) {
           case(1): 
-            attemptEnded();
+            attemptEnded('', true);
             break;
         }
       }
+    } else if (previewSession?.attempt_option === 3 && chat) {
+      attempt()
+      closePopup()
+      setChat(chat.chatHTML)
+      addAttemptLabel(popup)
+      attemptEnded('', true)
     }
   }
 

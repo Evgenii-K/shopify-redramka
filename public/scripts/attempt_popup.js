@@ -32,14 +32,15 @@ const activePopupContentClass = 'attempt__content';
 const showButtonClass = '.cart__button--negotiate';
 const closeButtonClass = '.attempt__button-close';
 const popupClass = '.attempt__wrapper';
+let popup = document.querySelector(popupClass);
 const currentHostName = window.location.hostname;
 const currentHostProtocol = window.location.protocol;
 const host = 'https://stage.skidka.vip';
-const productId = 'cca99975-7381-4101-959a-79002815f0b8';
-// const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
+// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
+const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101';
 let sessionKey = '';
 let salePosition = 'bottomRight';
-let chatPosition = 'left';
+let chatPosition = 'right';
 let salePositionPrice = false;
 const mainColor = '#FF4B2B';
 const fontSize = 15;
@@ -59,7 +60,7 @@ const salePositionStyle = {
     rotate: 0,
     position: 'absolute'
 };
-if (salePositionPrice && !localhost.includes('collections')) {
+if (salePositionPrice || !localhost.includes('collections')) {
     salePosition = 'onPrice';
 }
 switch (salePosition) {
@@ -696,6 +697,7 @@ function attempt() {
     </div>
   `;
     document.body.append(div);
+    popup = document.querySelector(popupClass);
 }
 const innerHTMLClass = '.attempt__content';
 const messageClass = 'attempt__message';
@@ -768,9 +770,13 @@ function addNegotiateButton(addToCartButton) {
     div.innerHTML = 'NEGOTIATE A PRICE';
     addToCartButton.after(div);
 }
+function removeAddNegotiateButton() {
+    document.querySelector('.cart__button--negotiate').remove();
+}
 function answerMessage(text) {
     const chatTeg = document.querySelector(innerHTMLClass);
     chatTeg.insertAdjacentHTML('beforeend', `<div class="attempt__message attempt__message--answer">${text}</div>`);
+    scrollChat(chatTeg);
 }
 function closePopup() {
     const closeButton = document.querySelector(closeButtonClass);
@@ -786,6 +792,7 @@ function setInputDisable() {
     input.setAttribute('disabled', '');
     input.placeholder = inputPlaceholderDisable;
     button.classList.add(hiddenClass);
+    console.log('button: ', button);
     isInputHidden = true;
 }
 function removeInputDisable() {
@@ -795,12 +802,18 @@ function removeInputDisable() {
     input.removeAttribute('disabled');
     input.placeholder = inputPlaceholder;
     button.classList.remove(hiddenClass);
+    console.log('remove');
     isInputHidden = false;
+}
+function scrollChat(chatTeg) {
+    setTimeout(() => {
+        chatTeg.scrollTop = chatTeg.scrollHeight;
+    }, 500);
 }
 function addMessage(html, record) {
     var _a, _b, _c, _d;
     const chatTeg = document.querySelector(innerHTMLClass);
-    chatTeg.scrollTop = chatTeg.scrollHeight;
+    scrollChat(chatTeg);
     chatTeg.insertAdjacentHTML('beforeend', html);
     const nodeListLength = chatTeg.childNodes.length;
     const firstLastNode = chatTeg.childNodes[nodeListLength - 2];
@@ -858,12 +871,12 @@ function submitAttempt() {
     hiddenFormButton(false);
     document.querySelector('#attempt').addEventListener('submit', (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
+        setInputDisable();
         const input = document.querySelector('.attempt__form-input');
         if (isLastAttempt) {
             areYouSure(input.value);
         }
         else {
-            setInputDisable();
             addMessage(messages.loader, false);
             const doAttemptAnswer = yield postDoAttempt(host, productId, sessionKey, input.value);
             removeLoader();
@@ -895,16 +908,16 @@ function areYouSure(price) {
         chatTeg.querySelector('.attempt__choice').remove();
         answerMessage('Yes, I’m sure');
         isAttemptEnded = true;
-        attemptEnded(price);
+        attemptEnded(price, false);
     }));
 }
-function attemptEnded(price) {
+function attemptEnded(price, loadingFromChat) {
     return __awaiter(this, void 0, void 0, function* () {
         isAttemptEnded = true;
         setLocalStorage();
         addMessage(messages.like, false);
         addMessage(messages.congratulations, false);
-        if (price) {
+        if (!loadingFromChat) {
             addMessage(messages.loader, false);
             const answerStartTrade = yield postDoAttempt(host, productId, sessionKey, price);
             if (!(answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.error) && (answerStartTrade === null || answerStartTrade === void 0 ? void 0 : answerStartTrade.session)) {
@@ -917,6 +930,7 @@ function attemptEnded(price) {
                     addMessage(messages.offerAddMore, false);
                     addCatalogButton(offeredProductsCount);
                 }
+                removeAddNegotiateButton();
             }
         }
         else {
@@ -1060,6 +1074,7 @@ function addChoiceButton(ignore, negotiate, postStartTrade) {
       <button class="attempt__choice-button attempt__choice-button--negotiate">${negotiate}</button>
     </div>
   `;
+    scrollChat(chatTeg);
     addMessage(choiceButtonBlock, false);
     chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
         chatTeg.querySelector('.attempt__choice').remove();
@@ -1162,10 +1177,13 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
     styleSheet();
     if (addToCartButton) {
         const answerScanCode = yield postScanCode(host, productId);
-        if ((answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.data) && (answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.session)) {
+        const previewSession = yield getSession();
+        const chat = getLocalStorage();
+        if ((answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.data) && (answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.session) && (previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) !== 3) {
             attempt();
             closePopup();
             addNegotiateButton(addToCartButton);
+            const showButton = document.querySelector(showButtonClass);
             sessionKey = answerScanCode.session;
             itemName = answerScanCode.data.screen.product.category;
             img = answerScanCode.data.screen.product.img_link;
@@ -1178,8 +1196,6 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                 addHeader(img, price);
             }
             submitAttempt();
-            const showButton = document.querySelector(showButtonClass);
-            const popup = document.querySelector(popupClass);
             const chat = getLocalStorage();
             // @ts-ignore
             if (chat) {
@@ -1196,7 +1212,6 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                     removeInputDisable();
                 }
             }
-            const previewSession = yield getSession();
             showButton.addEventListener('click', () => {
                 popup.classList.add(activePopupClass);
                 console.log('red button clicked');
@@ -1209,6 +1224,8 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                 }
             });
             addToCartButton.addEventListener('click', () => {
+                if ((previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) === 3)
+                    return;
                 popup.classList.add(activePopupClass);
                 console.log('addToCart button clicked');
                 if (!isStartTrade && previewSession.attempt_option !== 2) {
@@ -1222,10 +1239,17 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
             if (previewSession.attempt && isAttemptEnded) {
                 switch (previewSession.attempt_option) {
                     case (1):
-                        attemptEnded();
+                        attemptEnded('', true);
                         break;
                 }
             }
+        }
+        else if ((previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) === 3 && chat) {
+            attempt();
+            closePopup();
+            setChat(chat.chatHTML);
+            addAttemptLabel(popup);
+            attemptEnded('', true);
         }
     }
     if (localhost.includes('collections')) {
