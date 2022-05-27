@@ -971,7 +971,6 @@ function getLocalStorage() {
 }
 
 function setChat(chat: string) {
-  console.log('setChat');
   const chatContainer = document.querySelector(`.${activePopupContentClass}`)
   chatContainer.innerHTML = chat
   isStartTrade = true
@@ -999,9 +998,11 @@ function removeLoader() {
 function submitAttempt () {
   document.querySelector('#attempt').addEventListener('submit', async (e) => {
     e.preventDefault();
-    setInputDisable()
     const input: HTMLInputElement = document.querySelector('.attempt__form-input');
+    const value = input.value.trim()
+    if (!value) return
 
+    setInputDisable()
     if (isLastAttempt) {
       areYouSure(input.value)
       input.value = ''

@@ -907,7 +907,6 @@ function getLocalStorage() {
     return JSON.parse(localStorage.getItem(pathname));
 }
 function setChat(chat) {
-    console.log('setChat');
     const chatContainer = document.querySelector(`.${activePopupContentClass}`);
     chatContainer.innerHTML = chat;
     isStartTrade = true;
@@ -932,8 +931,11 @@ function removeLoader() {
 function submitAttempt() {
     document.querySelector('#attempt').addEventListener('submit', (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
-        setInputDisable();
         const input = document.querySelector('.attempt__form-input');
+        const value = input.value.trim();
+        if (!value)
+            return;
+        setInputDisable();
         if (isLastAttempt) {
             areYouSure(input.value);
             input.value = '';
