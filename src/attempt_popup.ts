@@ -697,6 +697,23 @@ function styleSheet () {
       display: inline-block;
       padding-left: 12px;
     }
+
+    @media screen and (max-width: 768px) {
+      .attempt__header {
+        width: 100%;
+      }
+      .attempt__wrapper {
+        bottom: 0;
+        right: 0;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+      }
+      .attempt__form {
+        width: 100%;
+      }
+    }
     /*# sourceMappingURL=index.css.map */
     `
 
@@ -844,6 +861,11 @@ const messages = {
   enterDesired: `<div class="attempt__message">Ok! 👌 Enter your desired price.</div>`,
 }
 
+function isMobileSize(): boolean {
+  const windowWidth = document.documentElement.clientWidth
+  return windowWidth <= 768
+}
+
 function addNegotiateButton(addToCartButton: Element) {
   let div = document.createElement('button');
   div.classList.add('cart__button', 'cart__button--negotiate');
@@ -863,12 +885,17 @@ function answerMessage(text: string) {
   scrollChat(chatTeg)
 }
 
+function showPopup() {
+  popup.classList.add(activePopupClass);
+  if (isMobileSize) document.body.style.position = 'fixed'
+}
+
 function closePopup() {
   const closeButton = document.querySelector(closeButtonClass);
-  const popup = document.querySelector(popupClass);
 
   closeButton.addEventListener('click', () => {
     popup.classList.remove(activePopupClass);
+    document.body.style.position = 'static'
   })
 }
 
@@ -1379,7 +1406,7 @@ setTimeout(async () => {
         const showButton = document.querySelector(showButtonClass);
 
         showButton.addEventListener('click', () => {
-          popup.classList.add(activePopupClass);
+          showPopup()
           console.log('red button clicked');
     
           if (!isStartTrade && previewSession.attempt_option !== 2) {
@@ -1395,7 +1422,7 @@ setTimeout(async () => {
 
       addToCartButton.addEventListener('click', () => {
         if (previewSession?.attempt_option === 3 || attemptCount > 1) return
-        popup.classList.add(activePopupClass);
+        showPopup()
         console.log('addToCart button clicked');
   
         if (!isStartTrade && previewSession.attempt_option !== 2) {
