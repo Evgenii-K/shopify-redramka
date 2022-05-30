@@ -12,6 +12,9 @@ if (addToCartButton) {
   addToCartButtonStyles = window.getComputedStyle(addToCartButton)  
 }
 
+const currentHostName = window.location.hostname
+const currentHostProtocol = window.location.protocol
+
 const userIdCookieName = '_shopify_y' // идентификатор пользователя в куках сайта
 let userId = ''
 const cookieId = document.cookie.split(';').map(item => item.split('=')).find(item => item[0].trim() === userIdCookieName);
@@ -21,35 +24,102 @@ if (cookieId) {
 }
 console.log('userId: ', userId);
 
+const host = 'https://stage.skidka.vip'
+// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
+const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
+declare let sessionKey: string
+
+// fake api
+
+interface IAnswerStartTrade {
+  error: {},
+  data: {
+    basket: {
+      groups: [
+        {
+          added_products: [],
+          offered_products: []
+        }
+      ]
+    },
+    screen: {
+      previous_price: number,
+      product: {
+        is_last_attempt: boolean,
+        price: number,
+        price_discount: number,
+        display_price: number,
+        category: string,
+        img_link: string
+      }
+    }
+  },
+  session: string
+}
+
+const fakeScanCode: IAnswerStartTrade = {
+  error: {},
+  data: {
+    basket: {
+      groups: [
+        {
+          added_products: [],
+          offered_products: []
+        }
+      ]
+    },
+    screen: {
+      previous_price: 5000,
+      product: {
+        is_last_attempt: false,
+        price: 7260,
+        price_discount: 6475,
+        display_price: 7000,
+        category: 'Blue Silk Tuxedo',
+        img_link: 'https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg'
+      }
+    }
+  },
+  session: '46a31ac1-2c17-4071-b103-2a40bcbfc780'
+}
+
+const fakeCatalogApi = [
+  'blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top'
+]
+
+// классы попап
+
 const activePopupClass = 'attempt__active'
 const activePopupContentClass = 'attempt__content'
 const showButtonClass = '.cart__button--negotiate'
 const closeButtonClass = '.attempt__button-close'
 const popupClass = '.attempt__wrapper'
-let popup = document.querySelector(popupClass);
-
-const currentHostName = window.location.hostname
-const currentHostProtocol = window.location.protocol
-
-const host = 'https://stage.skidka.vip'
-// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
-const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101'
-let sessionKey = ''
-
-let salePosition = 'bottomRight'
-let chatPosition = 'right'
-let salePositionPrice = false
-const mainColor = '#FF4B2B'
-const fontSize = 15
-
 const innerHTMLClass = '.attempt__content'
 const messageClass = 'attempt__message'
 const loaderClass = '.attempt__loader'
 const firstMessage = 'attempt__message--first'
 const secondMessage = 'attempt__message--second'
 const hiddenClass = 'attempt__hidden'
+
+declare let popup: Element
+declare let form: HTMLFormElement
+declare let input: HTMLInputElement
+declare let buttonSubmit: HTMLButtonElement
+declare let closeButton: Element
+declare let chatTeg: Element
+
+// placeholder for input
+
 const inputPlaceholder = 'Enter price in USD'
 const inputPlaceholderDisable = 'Aa'
+
+// админка
+
+let salePosition = 'bottomRight'
+let chatPosition = 'right'
+let salePositionPrice = false
+const mainColor = '#FF4B2B'
+const fontSize = 15
 
 interface IStyle {
   [key: string]: string | number
@@ -105,10 +175,6 @@ switch(salePosition) {
   default:
     console.log('default');
 }
-
-const fakeCatalogApi = [
-  'blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top'
-]
 
 function styleSheet () {
   let style = document.createElement('style');
@@ -346,6 +412,7 @@ function styleSheet () {
       height: 100%;
       width: 100%;
       border: none;
+      background-color: #fff;
     }
 
     .attempt__form-input::-webkit-inner-spin-button {
@@ -407,7 +474,7 @@ function styleSheet () {
       position: absolute;
       width: 56px;
       height: 100%;
-      background-color: #f4f4f4;
+      background-color: #fff;
       top: 5px;
       right: 0;
       cursor: pointer;
@@ -745,9 +812,18 @@ function attempt () {
     </div>
   `
   document.body.append(div);
-  setInputDisable()
+  
   popup = document.querySelector(popupClass);
+  form = document.querySelector('#attempt')
+  input = form.querySelector('input')
+  buttonSubmit = form.querySelector('button')
+  closeButton = document.querySelector(closeButtonClass);
+  chatTeg = document.querySelector(innerHTMLClass)
+
+  closeButton.addEventListener('click', closePopup)
 }
+
+// --------------------------
 
 let previous_price = 0;
 let price_discount = 0;
@@ -762,71 +838,14 @@ let isAttemptEnded = false;
 let isInputHidden = true;
 let attemptCount = 0;
 
-const choiceButtonText = {
-  ignore: 'NO',
-  confirm: 'NEGOTIATE'
-};
-
-interface IAnswerStartTrade {
-  error: {},
-  data: {
-    basket: {
-      groups: [
-        {
-          added_products: [],
-          offered_products: []
-        }
-      ]
-    },
-    screen: {
-      previous_price: number,
-      product: {
-        is_last_attempt: boolean,
-        price: number,
-        price_discount: number,
-        display_price: number,
-        category: string,
-        img_link: string
-      }
-    }
-  },
-  session: string
-}
-
-const fakeScanCode: IAnswerStartTrade = {
-  error: {},
-  data: {
-    basket: {
-      groups: [
-        {
-          added_products: [],
-          offered_products: []
-        }
-      ]
-    },
-    screen: {
-      previous_price: 5000,
-      product: {
-        is_last_attempt: false,
-        price: 7260,
-        price_discount: 6475,
-        display_price: 7000,
-        category: 'Blue Silk Tuxedo',
-        img_link: 'https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg'
-      }
-    }
-  },
-  session: '46a31ac1-2c17-4071-b103-2a40bcbfc780'
-}
-
 const messages = {
   hi: `<div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>
        <div class="attempt__message attempt__message--second">Do you want to negotiate a discount? 😉</div>`,
   negotiate: `<div class="attempt__message attempt__message--answer">Negotiate</div>`,
   no: `<div class="attempt__message attempt__message--answer">No</div>`,
   choice: `<div class="attempt__choice">
-            <button class="attempt__choice-button attempt__choice-button--ignore">${choiceButtonText.ignore}</button>
-            <button class="attempt__choice-button attempt__choice-button--negotiate">${choiceButtonText.confirm}</button>
+            <button class="attempt__choice-button attempt__choice-button--ignore">NO</button>
+            <button class="attempt__choice-button attempt__choice-button--negotiate">NEGOTIATE</button>
            </div>`,
   areYouSure: `<div class="attempt__choice">
                 <button class="attempt__choice-button attempt__choice-button--ignore">No</button>
@@ -874,15 +893,12 @@ function addNegotiateButton(addToCartButton: Element) {
 }
 
 function removeNegotiateButton() {
-  document.querySelector('.cart__button--negotiate').remove()
+  document.querySelector('.cart__button--negotiate')?.remove()
 }
 
 function answerMessage(text: string) {
-  const chatTeg = document.querySelector(innerHTMLClass)
-
   chatTeg.insertAdjacentHTML('beforeend', `<div class="attempt__message attempt__message--answer">${text}</div>`)
-
-  scrollChat(chatTeg)
+  scrollChat()
 }
 
 function showPopup() {
@@ -891,49 +907,35 @@ function showPopup() {
 }
 
 function closePopup() {
-  const closeButton = document.querySelector(closeButtonClass);
-
-  closeButton.addEventListener('click', () => {
-    popup.classList.remove(activePopupClass);
-    document.body.style.position = 'static'
-  })
+  popup.classList.remove(activePopupClass);
+  document.body.style.position = 'static'
 }
 
 function setInputDisable() {
-  const form = document.querySelector('#attempt')
-  const input = form.querySelector('input')
-  const button = form.querySelector('button')
-
   input.setAttribute('disabled', '')
   input.placeholder = inputPlaceholderDisable;
 
-  button.classList.add(hiddenClass);
+  buttonSubmit.classList.add(hiddenClass);
 
   isInputHidden = true
 }
 
 function removeInputDisable() {
-  const form = document.querySelector('#attempt')
-  const input = form.querySelector('input')
-  const button = form.querySelector('button')
-
   input.removeAttribute('disabled')
   input.placeholder = inputPlaceholder
-  button.classList.remove(hiddenClass)
+  buttonSubmit.classList.remove(hiddenClass)
 
   isInputHidden = false
 }
 
-function scrollChat(chatTeg: Element) {
+function scrollChat() {
   setTimeout(() => {
     chatTeg.scrollTop = chatTeg.scrollHeight
   }, 500)
 }
 
 function addMessage(html: string, record: boolean) {
-  const chatTeg = document.querySelector(innerHTMLClass)
-
-  scrollChat(chatTeg)
+  scrollChat()
   
   chatTeg.insertAdjacentHTML('beforeend', html)
   const nodeListLength = chatTeg.childNodes.length
@@ -1076,8 +1078,6 @@ async function attemptEnded(price: string, loadingFromChat: boolean) {
 }
 
 function previewSessionOpen() {
-  const chatTeg = document.querySelector(innerHTMLClass)
-
   addMessage(messages.switchToNew, false)
 
   chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
@@ -1108,7 +1108,6 @@ function checkout() {
 }
 
 function addCatalogButton(count: number) {
-  const chatTeg = document.querySelector(innerHTMLClass)
   const catalog = `<div class="attempt__choice attempt__choice--answer attempt__choice--catalog">
                     <button class="attempt__choice-button attempt__choice-button--more attempt__choice-button--negotiate">See list of marked products (${count})</button>
                   </div>`
@@ -1117,7 +1116,7 @@ function addCatalogButton(count: number) {
     document.location.href = `${currentHostProtocol}//${currentHostName}/collections/all`
   })
 
-  scrollChat(chatTeg)
+  scrollChat()
 }
 
 async function postDoAttempt(host: string, productId: string, sessionKey: string, price: string) {
@@ -1359,7 +1358,6 @@ setTimeout(async () => {
 
     if (answerScanCode?.data && answerScanCode?.session && previewSession?.attempt_option !== 3) {
       attempt();
-      closePopup();
 
       sessionKey = answerScanCode.session
       itemName = answerScanCode.data.screen.product.category
@@ -1437,7 +1435,6 @@ setTimeout(async () => {
       })
     } else if (previewSession?.attempt_option === 3 && chat) {
       attempt()
-      closePopup()
       setChat(chat.chatHTML)
       addAttemptLabel()
       attemptEnded('', true)

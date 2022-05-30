@@ -20,6 +20,8 @@ let addToCartButtonStyles;
 if (addToCartButton) {
     addToCartButtonStyles = window.getComputedStyle(addToCartButton);
 }
+const currentHostName = window.location.hostname;
+const currentHostProtocol = window.location.protocol;
 const userIdCookieName = '_shopify_y'; // идентификатор пользователя в куках сайта
 let userId = '';
 const cookieId = document.cookie.split(';').map(item => item.split('=')).find(item => item[0].trim() === userIdCookieName);
@@ -27,31 +29,58 @@ if (cookieId) {
     userId = cookieId[1];
 }
 console.log('userId: ', userId);
+const host = 'https://stage.skidka.vip';
+// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
+const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101';
+const fakeScanCode = {
+    error: {},
+    data: {
+        basket: {
+            groups: [
+                {
+                    added_products: [],
+                    offered_products: []
+                }
+            ]
+        },
+        screen: {
+            previous_price: 5000,
+            product: {
+                is_last_attempt: false,
+                price: 7260,
+                price_discount: 6475,
+                display_price: 7000,
+                category: 'Blue Silk Tuxedo',
+                img_link: 'https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg'
+            }
+        }
+    },
+    session: '46a31ac1-2c17-4071-b103-2a40bcbfc780'
+};
+const fakeCatalogApi = [
+    'blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top'
+];
+// классы попап
 const activePopupClass = 'attempt__active';
 const activePopupContentClass = 'attempt__content';
 const showButtonClass = '.cart__button--negotiate';
 const closeButtonClass = '.attempt__button-close';
 const popupClass = '.attempt__wrapper';
-let popup = document.querySelector(popupClass);
-const currentHostName = window.location.hostname;
-const currentHostProtocol = window.location.protocol;
-const host = 'https://stage.skidka.vip';
-// const productId = 'cca99975-7381-4101-959a-79002815f0b8'
-const productId = '0c2bdc57-5d9e-4824-88b9-6142cae1e101';
-let sessionKey = '';
-let salePosition = 'bottomRight';
-let chatPosition = 'right';
-let salePositionPrice = false;
-const mainColor = '#FF4B2B';
-const fontSize = 15;
 const innerHTMLClass = '.attempt__content';
 const messageClass = 'attempt__message';
 const loaderClass = '.attempt__loader';
 const firstMessage = 'attempt__message--first';
 const secondMessage = 'attempt__message--second';
 const hiddenClass = 'attempt__hidden';
+// placeholder for input
 const inputPlaceholder = 'Enter price in USD';
 const inputPlaceholderDisable = 'Aa';
+// админка
+let salePosition = 'bottomRight';
+let chatPosition = 'right';
+let salePositionPrice = false;
+const mainColor = '#FF4B2B';
+const fontSize = 15;
 const negotiateButtonStyle = {
     fontFamily: (addToCartButtonStyles === null || addToCartButtonStyles === void 0 ? void 0 : addToCartButtonStyles.fontFamily) ? addToCartButtonStyles.fontFamily : 'Inter',
     fontStyle: (addToCartButtonStyles === null || addToCartButtonStyles === void 0 ? void 0 : addToCartButtonStyles.fontStyle) ? addToCartButtonStyles.fontStyle : 'normal',
@@ -99,9 +128,6 @@ switch (salePosition) {
     default:
         console.log('default');
 }
-const fakeCatalogApi = [
-    'blue-silk-tuxedo', 'floral-white-top', 'silk-summer-top'
-];
 function styleSheet() {
     let style = document.createElement('style');
     style.innerHTML = `
@@ -337,6 +363,7 @@ function styleSheet() {
       height: 100%;
       width: 100%;
       border: none;
+      background-color: #fff;
     }
 
     .attempt__form-input::-webkit-inner-spin-button {
@@ -398,7 +425,7 @@ function styleSheet() {
       position: absolute;
       width: 56px;
       height: 100%;
-      background-color: #f4f4f4;
+      background-color: #fff;
       top: 5px;
       right: 0;
       cursor: pointer;
@@ -734,9 +761,15 @@ function attempt() {
     </div>
   `;
     document.body.append(div);
-    setInputDisable();
     popup = document.querySelector(popupClass);
+    form = document.querySelector('#attempt');
+    input = form.querySelector('input');
+    buttonSubmit = form.querySelector('button');
+    closeButton = document.querySelector(closeButtonClass);
+    chatTeg = document.querySelector(innerHTMLClass);
+    closeButton.addEventListener('click', closePopup);
 }
+// --------------------------
 let previous_price = 0;
 let price_discount = 0;
 let itemName = '';
@@ -749,43 +782,14 @@ let isStartTrade = false;
 let isAttemptEnded = false;
 let isInputHidden = true;
 let attemptCount = 0;
-const choiceButtonText = {
-    ignore: 'NO',
-    confirm: 'NEGOTIATE'
-};
-const fakeScanCode = {
-    error: {},
-    data: {
-        basket: {
-            groups: [
-                {
-                    added_products: [],
-                    offered_products: []
-                }
-            ]
-        },
-        screen: {
-            previous_price: 5000,
-            product: {
-                is_last_attempt: false,
-                price: 7260,
-                price_discount: 6475,
-                display_price: 7000,
-                category: 'Blue Silk Tuxedo',
-                img_link: 'https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg'
-            }
-        }
-    },
-    session: '46a31ac1-2c17-4071-b103-2a40bcbfc780'
-};
 const messages = {
     hi: `<div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>
        <div class="attempt__message attempt__message--second">Do you want to negotiate a discount? 😉</div>`,
     negotiate: `<div class="attempt__message attempt__message--answer">Negotiate</div>`,
     no: `<div class="attempt__message attempt__message--answer">No</div>`,
     choice: `<div class="attempt__choice">
-            <button class="attempt__choice-button attempt__choice-button--ignore">${choiceButtonText.ignore}</button>
-            <button class="attempt__choice-button attempt__choice-button--negotiate">${choiceButtonText.confirm}</button>
+            <button class="attempt__choice-button attempt__choice-button--ignore">NO</button>
+            <button class="attempt__choice-button attempt__choice-button--negotiate">NEGOTIATE</button>
            </div>`,
     areYouSure: `<div class="attempt__choice">
                 <button class="attempt__choice-button attempt__choice-button--ignore">No</button>
@@ -830,12 +834,12 @@ function addNegotiateButton(addToCartButton) {
     addToCartButton.after(div);
 }
 function removeNegotiateButton() {
-    document.querySelector('.cart__button--negotiate').remove();
+    var _a;
+    (_a = document.querySelector('.cart__button--negotiate')) === null || _a === void 0 ? void 0 : _a.remove();
 }
 function answerMessage(text) {
-    const chatTeg = document.querySelector(innerHTMLClass);
     chatTeg.insertAdjacentHTML('beforeend', `<div class="attempt__message attempt__message--answer">${text}</div>`);
-    scrollChat(chatTeg);
+    scrollChat();
 }
 function showPopup() {
     popup.classList.add(activePopupClass);
@@ -843,39 +847,29 @@ function showPopup() {
         document.body.style.position = 'fixed';
 }
 function closePopup() {
-    const closeButton = document.querySelector(closeButtonClass);
-    closeButton.addEventListener('click', () => {
-        popup.classList.remove(activePopupClass);
-        document.body.style.position = 'static';
-    });
+    popup.classList.remove(activePopupClass);
+    document.body.style.position = 'static';
 }
 function setInputDisable() {
-    const form = document.querySelector('#attempt');
-    const input = form.querySelector('input');
-    const button = form.querySelector('button');
     input.setAttribute('disabled', '');
     input.placeholder = inputPlaceholderDisable;
-    button.classList.add(hiddenClass);
+    buttonSubmit.classList.add(hiddenClass);
     isInputHidden = true;
 }
 function removeInputDisable() {
-    const form = document.querySelector('#attempt');
-    const input = form.querySelector('input');
-    const button = form.querySelector('button');
     input.removeAttribute('disabled');
     input.placeholder = inputPlaceholder;
-    button.classList.remove(hiddenClass);
+    buttonSubmit.classList.remove(hiddenClass);
     isInputHidden = false;
 }
-function scrollChat(chatTeg) {
+function scrollChat() {
     setTimeout(() => {
         chatTeg.scrollTop = chatTeg.scrollHeight;
     }, 500);
 }
 function addMessage(html, record) {
     var _a, _b, _c, _d;
-    const chatTeg = document.querySelector(innerHTMLClass);
-    scrollChat(chatTeg);
+    scrollChat();
     chatTeg.insertAdjacentHTML('beforeend', html);
     const nodeListLength = chatTeg.childNodes.length;
     const firstLastNode = chatTeg.childNodes[nodeListLength - 2];
@@ -1007,7 +1001,6 @@ function attemptEnded(price, loadingFromChat) {
     });
 }
 function previewSessionOpen() {
-    const chatTeg = document.querySelector(innerHTMLClass);
     addMessage(messages.switchToNew, false);
     chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
         chatTeg.querySelector('.attempt__choice').remove();
@@ -1032,7 +1025,6 @@ function checkout() {
     }));
 }
 function addCatalogButton(count) {
-    const chatTeg = document.querySelector(innerHTMLClass);
     const catalog = `<div class="attempt__choice attempt__choice--answer attempt__choice--catalog">
                     <button class="attempt__choice-button attempt__choice-button--more attempt__choice-button--negotiate">See list of marked products (${count})</button>
                   </div>`;
@@ -1040,7 +1032,7 @@ function addCatalogButton(count) {
     chatTeg.querySelector('.attempt__choice--catalog').addEventListener('click', () => {
         document.location.href = `${currentHostProtocol}//${currentHostName}/collections/all`;
     });
-    scrollChat(chatTeg);
+    scrollChat();
 }
 function postDoAttempt(host, productId, sessionKey, price) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1247,7 +1239,6 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
         const chat = getLocalStorage();
         if ((answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.data) && (answerScanCode === null || answerScanCode === void 0 ? void 0 : answerScanCode.session) && (previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) !== 3) {
             attempt();
-            closePopup();
             sessionKey = answerScanCode.session;
             itemName = answerScanCode.data.screen.product.category;
             img = answerScanCode.data.screen.product.img_link;
@@ -1314,7 +1305,6 @@ setTimeout(() => __awaiter(this, void 0, void 0, function* () {
         }
         else if ((previewSession === null || previewSession === void 0 ? void 0 : previewSession.attempt_option) === 3 && chat) {
             attempt();
-            closePopup();
             setChat(chat.chatHTML);
             addAttemptLabel();
             attemptEnded('', true);
