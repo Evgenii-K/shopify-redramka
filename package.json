@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
-    "prestart": "npm run build",
-    "start": "node dist/index.js"
+    "dev": "webpack serve --env development --config ./webpack/config.js",
+    "build": "webpack --env production --config ./webpack/config.js",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [],
   "author": "",

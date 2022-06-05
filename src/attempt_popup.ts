@@ -9,7 +9,7 @@ const productCardPrice = 'js-price' // класс цены в карточке �
 const addToCartButton = document.querySelector(addToCartClass)
 let addToCartButtonStyles
 if (addToCartButton) {
-  addToCartButtonStyles = window.getComputedStyle(addToCartButton)  
+  addToCartButtonStyles = window.getComputedStyle(addToCartButton)
 }
 
 const currentHostName = window.location.hostname
@@ -17,12 +17,13 @@ const currentHostProtocol = window.location.protocol
 
 const userIdCookieName = '_shopify_y' // идентификатор пользователя в куках сайта
 let userId = ''
-const cookieId = document.cookie.split(';').map(item => item.split('=')).find(item => item[0].trim() === userIdCookieName);
+const cookieId = document.cookie.split(';').map(item => item.split('=')).find(item => item[0].trim() === userIdCookieName)
 
 if (cookieId) {
   userId = cookieId[1]
 }
-console.log('userId: ', userId);
+// eslint-disable-next-line no-console
+console.log('userId: ', userId)
 
 const host = 'https://stage.skidka.vip'
 // const productId = 'cca99975-7381-4101-959a-79002815f0b8'
@@ -37,7 +38,7 @@ interface IAnswerStartTrade {
     basket: {
       groups: [
         {
-          added_products: [],
+          added_products: [], // @ts-ignore: Unreachable code error
           offered_products: []
         }
       ]
@@ -96,7 +97,7 @@ const closeButtonClass = '.attempt__button-close'
 const popupClass = '.attempt__wrapper'
 const innerHTMLClass = '.attempt__content'
 const messageClass = 'attempt__message'
-const loaderClass = '.attempt__loader'
+// const loaderClass = '.attempt__loader'
 const firstMessage = 'attempt__message--first'
 const secondMessage = 'attempt__message--second'
 const hiddenClass = 'attempt__hidden'
@@ -116,7 +117,9 @@ const inputPlaceholderDisable = 'Aa'
 // админка
 
 let salePosition = 'bottomRight'
+// eslint-disable-next-line prefer-const
 let chatPosition = 'right'
+// eslint-disable-next-line
 let salePositionPrice = false
 const mainColor = '#FF4B2B'
 const fontSize = 15
@@ -147,37 +150,38 @@ if (salePositionPrice || !localhost.includes('collections')) {
   salePosition = 'onPrice'
 }
 
-switch(salePosition) {
-  case('bottomRight'):
-    salePositionStyle.bottom = 0;
-    salePositionStyle.right = 0;
-    salePositionStyle.rotate = 180;
-    break;
-  case('topRight'):
-    salePositionStyle.top = 0;
-    salePositionStyle.right = 0;
-    salePositionStyle.rotate = 180;
-    break;
-  case('bottomLeft'):
-    salePositionStyle.bottom = 0;
-    salePositionStyle.left = 0;
-    salePositionStyle.rotate = 0;
-    break;
-  case('topLeft'):
-    salePositionStyle.top = 0;
-    salePositionStyle.left = 0;
-    salePositionStyle.rotate = 0;
-    break;
-  case('onPrice'):
-    salePositionStyle.position = 'static';
-    salePositionStyle.rotate = 180;
-    break;
+switch (salePosition) {
+  case ('bottomRight'):
+    salePositionStyle.bottom = 0
+    salePositionStyle.right = 0
+    salePositionStyle.rotate = 180
+    break
+  case ('topRight'):
+    salePositionStyle.top = 0
+    salePositionStyle.right = 0
+    salePositionStyle.rotate = 180
+    break
+  case ('bottomLeft'):
+    salePositionStyle.bottom = 0
+    salePositionStyle.left = 0
+    salePositionStyle.rotate = 0
+    break
+  case ('topLeft'):
+    salePositionStyle.top = 0
+    salePositionStyle.left = 0
+    salePositionStyle.rotate = 0
+    break
+  case ('onPrice'):
+    salePositionStyle.position = 'static'
+    salePositionStyle.rotate = 180
+    break
   default:
-    console.log('default');
+    // eslint-disable-next-line no-console
+    console.log('default')
 }
 
 function styleSheet () {
-  let style = document.createElement('style');
+  const style = document.createElement('style')
 
   style.innerHTML = `
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:ital@1&display=swap");
@@ -784,12 +788,12 @@ function styleSheet () {
     /*# sourceMappingURL=index.css.map */
     `
 
-    document.head.append(style);
+  document.head.append(style)
 }
 
 function attempt () {
-  let div = document.createElement('div');
-  div.classList.add('attempt');
+  const div = document.createElement('div')
+  div.classList.add('attempt')
   div.innerHTML = `
     <div class="attempt__wrapper">
       <div class="attempt__header">
@@ -811,38 +815,38 @@ function attempt () {
       </form>
     </div>
   `
-  document.body.append(div);
-  
-  popup = document.querySelector(popupClass);
-  form = document.querySelector('#attempt')
-  input = form.querySelector('input')
-  buttonSubmit = form.querySelector('button')
-  closeButton = document.querySelector(closeButtonClass);
-  chatTeg = document.querySelector(innerHTMLClass)
+  document.body.append(div)
+
+  popup = document.querySelector(popupClass)!
+  form = document.querySelector('#attempt')!
+  input = form.querySelector('input')!
+  buttonSubmit = form.querySelector('button')!
+  closeButton = document.querySelector(closeButtonClass)!
+  chatTeg = document.querySelector(innerHTMLClass)!
 
   closeButton.addEventListener('click', closePopup)
 }
 
 // --------------------------
 
-let previous_price = 0;
-let price_discount = 0;
-let itemName = '';
-let img = '';
-let price = '';
-let isChatOpened = false;
-let isFirstLoading = true;
-let isLastAttempt = false;
-let isStartTrade = false;
-let isAttemptEnded = false;
-let isInputHidden = true;
-let attemptCount = 0;
+let previous_price = 0
+// let price_discount = 0;
+let itemName = ''
+let img = ''
+let price = ''
+// let isChatOpened = false
+let isFirstLoading = true
+let isLastAttempt = false
+let isStartTrade = false
+let isAttemptEnded = false
+let isInputHidden = true
+let attemptCount = 0
 
 const messages = {
   hi: `<div class="attempt__message attempt__message--first">Hi, I'm Batna, nice to meet you!</div>
        <div class="attempt__message attempt__message--second">Do you want to negotiate a discount? 😉</div>`,
-  negotiate: `<div class="attempt__message attempt__message--answer">Negotiate</div>`,
-  no: `<div class="attempt__message attempt__message--answer">No</div>`,
+  negotiate: '<div class="attempt__message attempt__message--answer">Negotiate</div>',
+  no: '<div class="attempt__message attempt__message--answer">No</div>',
   choice: `<div class="attempt__choice">
             <button class="attempt__choice-button attempt__choice-button--ignore">NO</button>
             <button class="attempt__choice-button attempt__choice-button--negotiate">NEGOTIATE</button>
@@ -860,13 +864,13 @@ const messages = {
                 <button class="attempt__choice-button attempt__choice-button--negotiate">Yes</button>
               </div>`,
   singleItem: `<div class="attempt__message">You can negotiate price on a single item at a time. Are you sure you want to switch to ${itemName}?</div>`,
-  startTrade: `<div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>`,
-  loader: `<div class="attempt__message attempt__loader"><img src="https://smartptt.dev.redramka.ru/shopify/loading.svg" alt="..."></div>`,
-  dislike: `<div class="attempt__image-thumbs attempt__image-thumbs--down"></div>`,
-  like: `<div class="attempt__image-thumbs attempt__image-thumbs--up"></div>`,
-  tooLow: `<div class="attempt__message">Your offer is too low! Try to offer more!</div>`,
-  finalAttempt: `<div class="attempt__message">You have the final attempt!</div>`,
-  congratulations: `<div class="attempt__message attempt__message--first">Congratulations! We have a personal offer for you!</div>`,
+  startTrade: '<div class="attempt__message">BATNA will compare your offer to offers of other customers. If your offer is high enough — you will get an approval!</div>',
+  loader: '<div class="attempt__message attempt__loader"><img src="https://smartptt.dev.redramka.ru/shopify/loading.svg" alt="..."></div>',
+  dislike: '<div class="attempt__image-thumbs attempt__image-thumbs--down"></div>',
+  like: '<div class="attempt__image-thumbs attempt__image-thumbs--up"></div>',
+  tooLow: '<div class="attempt__message">Your offer is too low! Try to offer more!</div>',
+  finalAttempt: '<div class="attempt__message">You have the final attempt!</div>',
+  congratulations: '<div class="attempt__message attempt__message--first">Congratulations! We have a personal offer for you!</div>',
   offerPrice: `<div class="attempt__message attempt__message--second attempt__message--checkout">
                 <div class="attempt__message-price attempt__message-price--negative">£45.00</div>
                 <div class="attempt__message-price attempt__message-price--attention">£40.00</div>
@@ -877,50 +881,50 @@ const messages = {
                   if you buy extra product marked by this sign:
                   <div class="attempt__message--sale">%</div>
                  </div>`,
-  enterDesired: `<div class="attempt__message">Ok! 👌 Enter your desired price.</div>`,
+  enterDesired: '<div class="attempt__message">Ok! 👌 Enter your desired price.</div>'
 }
 
-function isMobileSize(): boolean {
+function isMobileSize (): boolean {
   const windowWidth = document.documentElement.clientWidth
   return windowWidth <= 768
 }
 
-function addNegotiateButton(addToCartButton: Element) {
-  let div = document.createElement('button');
-  div.classList.add('cart__button', 'cart__button--negotiate');
-  div.innerHTML = 'NEGOTIATE A PRICE';
-  addToCartButton.after(div);
+function addNegotiateButton (addToCartButton: Element) {
+  const div = document.createElement('button')
+  div.classList.add('cart__button', 'cart__button--negotiate')
+  div.innerHTML = 'NEGOTIATE A PRICE'
+  addToCartButton.after(div)
 }
 
-function removeNegotiateButton() {
+function removeNegotiateButton () {
   document.querySelector('.cart__button--negotiate')?.remove()
 }
 
-function answerMessage(text: string) {
+function answerMessage (text: string) {
   chatTeg.insertAdjacentHTML('beforeend', `<div class="attempt__message attempt__message--answer">${text}</div>`)
   scrollChat()
 }
 
-function showPopup() {
-  popup.classList.add(activePopupClass);
-  if (isMobileSize) document.body.style.position = 'fixed'
+function showPopup () {
+  popup.classList.add(activePopupClass)
+  if (isMobileSize()) document.body.style.position = 'fixed'
 }
 
-function closePopup() {
-  popup.classList.remove(activePopupClass);
+function closePopup () {
+  popup.classList.remove(activePopupClass)
   document.body.style.position = 'static'
 }
 
-function setInputDisable() {
+function setInputDisable () {
   input.setAttribute('disabled', '')
-  input.placeholder = inputPlaceholderDisable;
+  input.placeholder = inputPlaceholderDisable
 
-  buttonSubmit.classList.add(hiddenClass);
+  buttonSubmit.classList.add(hiddenClass)
 
   isInputHidden = true
 }
 
-function removeInputDisable() {
+function removeInputDisable () {
   input.removeAttribute('disabled')
   input.placeholder = inputPlaceholder
   buttonSubmit.classList.remove(hiddenClass)
@@ -928,22 +932,22 @@ function removeInputDisable() {
   isInputHidden = false
 }
 
-function scrollChat() {
+function scrollChat () {
   setTimeout(() => {
     chatTeg.scrollTop = chatTeg.scrollHeight
   }, 500)
 }
 
-function addMessage(html: string, record: boolean) {
+function addMessage (html: string, record: boolean) {
   scrollChat()
-  
+
   chatTeg.insertAdjacentHTML('beforeend', html)
   const nodeListLength = chatTeg.childNodes.length
   const firstLastNode = chatTeg.childNodes[nodeListLength - 2] as Element
   const secondLastNode = chatTeg.childNodes[nodeListLength - 1] as Element
 
-  if (firstLastNode.classList?.contains(messageClass) && firstLastNode.classList?.length === 1 
-  && secondLastNode.classList?.contains(messageClass) && secondLastNode.classList?.length === 1) {
+  if (firstLastNode.classList?.contains(messageClass) && firstLastNode.classList?.length === 1 &&
+  secondLastNode.classList?.contains(messageClass) && secondLastNode.classList?.length === 1) {
     firstLastNode.classList.add(firstMessage)
     secondLastNode.classList.add(secondMessage)
   }
@@ -953,9 +957,9 @@ function addMessage(html: string, record: boolean) {
   }
 }
 
-function setLocalStorage() {
+function setLocalStorage () {
   const pathname = window.location.pathname
-  const chatHTML = document.querySelector(`.${activePopupContentClass}`).innerHTML
+  const chatHTML = document.querySelector(`.${activePopupContentClass}`)!.innerHTML
   const chat = {
     chatHTML,
     isFirstLoading,
@@ -967,19 +971,21 @@ function setLocalStorage() {
   localStorage.setItem(pathname, JSON.stringify(chat))
 }
 
-function getLocalStorage() {
+function getLocalStorage () {
   const pathname = window.location.pathname
-  return JSON.parse(localStorage.getItem(pathname))
+  return JSON.parse(localStorage.getItem(pathname) || '{}')
 }
 
-function setChat(chat: string) {
+function setChat (chat: string) {
   const chatContainer = document.querySelector(`.${activePopupContentClass}`)
+  if (!chatContainer) return
   chatContainer.innerHTML = chat
   isStartTrade = true
 }
 
-function addHeader(img: string, price: string) {
+function addHeader (img: string, price: string) {
   const content = document.querySelector('.attempt__content')
+  if (!content) return
   const header = document.createElement('div')
   header.classList.add('attempt__card')
   header.innerHTML = `
@@ -993,14 +999,15 @@ function addHeader(img: string, price: string) {
   content.insertAdjacentElement('beforeend', header)
 }
 
-function removeLoader() {
-  document.querySelector('.attempt__loader').remove();
+function removeLoader () {
+  document.querySelector('.attempt__loader')?.remove()
 }
 
 function submitAttempt () {
-  document.querySelector('#attempt').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input: HTMLInputElement = document.querySelector('.attempt__form-input');
+  document.querySelector('#attempt')?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const input: HTMLInputElement | null = document.querySelector('.attempt__form-input')
+    if (!input) return
     const value = input.value.trim()
     if (!value) return
 
@@ -1013,7 +1020,8 @@ function submitAttempt () {
       const doAttemptAnswer = await postDoAttempt(host, productId, sessionKey, input.value)
       removeLoader()
       input.value = ''
-      console.log('doAttemptAnswer: ', doAttemptAnswer);
+      // eslint-disable-next-line no-console
+      console.log('doAttemptAnswer: ', doAttemptAnswer)
       if ((doAttemptAnswer as IAnswerStartTrade)?.data.screen.previous_price) {
         previous_price = (doAttemptAnswer as IAnswerStartTrade).data.screen.previous_price
         answerMessage(previous_price.toString())
@@ -1029,27 +1037,25 @@ function submitAttempt () {
   })
 }
 
-function areYouSure(price: string) {
-  const chatTeg = document.querySelector(innerHTMLClass)
-
+function areYouSure (price: string) {
   addMessage(messages.areYouSure, false)
 
-  chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
-    chatTeg.querySelector('.attempt__choice').remove()
+  chatTeg.querySelector('.attempt__choice-button--ignore')?.addEventListener('click', () => {
+    chatTeg.querySelector('.attempt__choice')?.remove()
     answerMessage('No')
     addMessage(messages.enterDesired, true)
     removeInputDisable()
   })
 
-  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
-    chatTeg.querySelector('.attempt__choice').remove()
+  chatTeg.querySelector('.attempt__choice-button--negotiate')?.addEventListener('click', async () => {
+    chatTeg.querySelector('.attempt__choice')?.remove()
     answerMessage('Yes, I’m sure')
     isAttemptEnded = true
     attemptEnded(price, false)
   })
 }
 
-async function attemptEnded(price: string, loadingFromChat: boolean) {
+async function attemptEnded (price: string, loadingFromChat: boolean) {
   isAttemptEnded = true
   setLocalStorage()
   addMessage(messages.like, false)
@@ -1058,6 +1064,7 @@ async function attemptEnded(price: string, loadingFromChat: boolean) {
     addMessage(messages.loader, false)
     const answerStartTrade = await postDoAttempt(host, productId, sessionKey, price)
     if (!(answerStartTrade as IAnswerStartTrade)?.error && (answerStartTrade as IAnswerStartTrade)?.session) {
+      // eslint-disable-next-line no-console
       console.log('postDoAttempt: ', answerStartTrade)
       removeLoader()
       addMessage(messages.offerPrice, false)
@@ -1077,50 +1084,47 @@ async function attemptEnded(price: string, loadingFromChat: boolean) {
   }
 }
 
-function previewSessionOpen() {
+function previewSessionOpen () {
   addMessage(messages.switchToNew, false)
 
-  chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
-    chatTeg.querySelector('.attempt__choice').remove()
+  chatTeg.querySelector('.attempt__choice-button--ignore')?.addEventListener('click', () => {
+    chatTeg.querySelector('.attempt__choice')?.remove()
     closePopup()
   })
 
-  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
-    chatTeg.querySelector('.attempt__choice').remove()
-    addHeader(img, price);
+  chatTeg.querySelector('.attempt__choice-button--negotiate')?.addEventListener('click', async () => {
+    chatTeg.querySelector('.attempt__choice')?.remove()
+    addHeader(img, price)
     startTrade(true)
   })
 }
 
-function checkout() {
-  const chatTeg = document.querySelector(innerHTMLClass)
-  const popup = document.querySelector(popupClass);
+function checkout () {
   addMessage(messages.checkout, false)
 
-  chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
-    popup.classList.remove(activePopupClass);
+  chatTeg.querySelector('.attempt__choice-button--ignore')?.addEventListener('click', () => {
+    popup.classList.remove(activePopupClass)
   })
 
-  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
-    popup.classList.remove(activePopupClass);
+  chatTeg.querySelector('.attempt__choice-button--negotiate')?.addEventListener('click', async () => {
+    popup.classList.remove(activePopupClass)
     document.location.href = `${currentHostProtocol}//${currentHostName}/cart`
   })
 }
 
-function addCatalogButton(count: number) {
+function addCatalogButton (count: number) {
   const catalog = `<div class="attempt__choice attempt__choice--answer attempt__choice--catalog">
                     <button class="attempt__choice-button attempt__choice-button--more attempt__choice-button--negotiate">See list of marked products (${count})</button>
                   </div>`
   addMessage(catalog, false)
-  chatTeg.querySelector('.attempt__choice--catalog').addEventListener('click', () => {
+  chatTeg.querySelector('.attempt__choice--catalog')?.addEventListener('click', () => {
     document.location.href = `${currentHostProtocol}//${currentHostName}/collections/all`
   })
 
   scrollChat()
 }
 
-async function postDoAttempt(host: string, productId: string, sessionKey: string, price: string) {
-
+async function postDoAttempt (host: string, productId: string, sessionKey: string, price: string) {
   const floatPrice = +price
 
   try {
@@ -1128,26 +1132,29 @@ async function postDoAttempt(host: string, productId: string, sessionKey: string
         `${host}/api/product/${productId}/do_attempt?session=${sessionKey}`,
         {
           method: 'POST',
-          body: JSON.stringify({price: floatPrice}),
+          body: JSON.stringify({ price: floatPrice }),
           headers: {
             'Content-Type': 'application/json'
-          },
+          }
         }
-      ).then(res => res.json())
+    ).then(res => res.json())
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('ошибка: ', error)
   }
 }
 
-async function getSessionList(host: string) {
+// eslint-disable-next-line
+async function getSessionList (host: string) {
   try {
     return await fetch(`${host}/api/user/session_list`).then(res => res.json())
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('ошибка: ', error)
   }
 }
 
-async function postScanCode(host: string, productId: string) {
+async function postScanCode (host: string, productId: string) {
   const scanCode = `${host}/api/product/${productId}/scan_code`
   return await fetch(
     scanCode,
@@ -1155,25 +1162,25 @@ async function postScanCode(host: string, productId: string) {
       method: 'POST'
     }
   )
-  .then((res) => res.json())
-  .catch(() => fakeScanCode)
-
+    .then((res) => res.json())
+    .catch(() => fakeScanCode)
 }
 
-async function postStartTrade(host: string, productId: string, sessionKey: string) {
+async function postStartTrade (host: string, productId: string, sessionKey: string) {
   try {
     return await fetch(
         `${host}/api/product/${productId}/start_trade?session=${sessionKey}`,
         {
           method: 'POST'
         }
-      ).then(res => res.json())
+    ).then(res => res.json())
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('ошибка: ', error)
   }
 }
 
-async function startTrade(negotiate: boolean) {
+async function startTrade (negotiate: boolean) {
   isFirstLoading = false
   if (negotiate) {
     addMessage(messages.hi, false)
@@ -1192,21 +1199,19 @@ async function startTrade(negotiate: boolean) {
       removeLoader()
       addMessage(messages.hi, false)
       addChoiceButton('NO', 'NEGOTIATE')
-    }, 1000);
+    }, 1000)
   }
 }
 
-async function getSession() {
+async function getSession () {
   const data = {
-    'attempt': true,
-    'attempt_option': 0
+    attempt: true,
+    attempt_option: 0
   }
   return data
 }
 
-function addChoiceButton(ignore: string, negotiate: string) {
-  const chatTeg = document.querySelector(innerHTMLClass)
-
+function addChoiceButton (ignore: string, negotiate: string) {
   const choiceButtonBlock = `<div class="attempt__choice">
       <button class="attempt__choice-button attempt__choice-button--ignore">${ignore}</button>
       <button class="attempt__choice-button attempt__choice-button--negotiate">${negotiate}</button>
@@ -1215,8 +1220,8 @@ function addChoiceButton(ignore: string, negotiate: string) {
 
   addMessage(choiceButtonBlock, false)
 
-  chatTeg.querySelector('.attempt__choice-button--ignore').addEventListener('click', () => {
-    chatTeg.querySelector('.attempt__choice').remove()
+  chatTeg.querySelector('.attempt__choice-button--ignore')?.addEventListener('click', () => {
+    chatTeg.querySelector('.attempt__choice')?.remove()
     answerMessage(ignore)
     attemptCount += 1
     if (attemptCount > 1) {
@@ -1224,8 +1229,8 @@ function addChoiceButton(ignore: string, negotiate: string) {
     }
   })
 
-  chatTeg.querySelector('.attempt__choice-button--negotiate').addEventListener('click', async () => {
-    chatTeg.querySelector('.attempt__choice').remove()
+  chatTeg.querySelector('.attempt__choice-button--negotiate')?.addEventListener('click', async () => {
+    chatTeg.querySelector('.attempt__choice')?.remove()
     answerMessage(negotiate)
     addMessage(messages.loader, false)
     const answerStartTrade = await postStartTrade(host, productId, sessionKey)
@@ -1238,94 +1243,99 @@ function addChoiceButton(ignore: string, negotiate: string) {
   })
 }
 
-function addAttemptLabel() {
+function addAttemptLabel () {
   const label = document.createElement('div')
   label.classList.add('attempt__round-label')
   label.innerHTML = '%'
   document.body.insertAdjacentElement('beforeend', label)
   label.addEventListener('click', () => {
-    popup.classList.add(activePopupClass);
+    popup.classList.add(activePopupClass)
   })
 }
 
-function collectionsLabels() {
+function collectionsLabels () {
   const items = document.querySelectorAll(`.${productItem}`)
-    
-  const itemsArray = Array.from(items);
+
+  const itemsArray = Array.from(items)
 
   itemsArray.forEach((item, key) => {
-    const link = item.querySelector(`.${productItemLink}`).getAttribute('href').split('/')
+    const link = item.querySelector(`.${productItemLink}`)?.getAttribute('href')?.split('/')
+    if (!link) return
     const length = link.length
 
     if (fakeCatalogApi.includes(link[length - 1])) {
-      console.log('key: ', key, 'link: ', link[length - 1]);
+      // eslint-disable-next-line no-console
+      console.log('key: ', key, 'link: ', link[length - 1])
 
       const wrapper = item.querySelector(`.${productItemWrapper}`)
+      if (!wrapper) return
 
       const price = wrapper.querySelector(`.${productPriceWrapper}`)
-      price.classList.add('product-item__price-wrapper--decoration')
+      price?.classList.add('product-item__price-wrapper--decoration')
 
       const sale = createLabel('500')
 
-      price.insertAdjacentElement('beforeend', sale.salePrice)
+      price?.insertAdjacentElement('beforeend', sale.salePrice)
 
       if (!salePositionPrice) {
         wrapper.insertAdjacentElement('beforeend', sale.label)
       } else {
-        price.insertAdjacentElement('beforeend', sale.label)
+        price?.insertAdjacentElement('beforeend', sale.label)
       }
     }
   })
 }
 
-function cartLabels() {
+function cartLabels () {
   const items = document.querySelectorAll(`.${productCartItem}`)
-    
-  const itemsArray = Array.from(items);
+
+  const itemsArray = Array.from(items)
 
   itemsArray.forEach((item, key) => {
     const meta = item.querySelector('.cart__table-cell--meta')
-    let link = null
-    let length = null
+    let links
+    let link
+
     if (meta) {
       if (meta.querySelector('.h3')) {
-        link = meta.querySelector('.h3').querySelector('a').getAttribute('href').split('/')
-        length = link.length
-        link = link[length - 1]
+        links = meta.querySelector('.h3')?.querySelector('a')?.getAttribute('href')?.split('/')
+        if (!links) return
+        const length = links.length
+        let link = links[length - 1]
         if (link.indexOf('?')) {
           link = link.split('?')[0]
         }
       }
     }
 
-    if (link) {
-      console.log(link.includes('blue-silk-tuxedo'));
+    if (link && typeof link === 'string') {
+      // @ts-ignore::disable-next-line
+      console.log(link.includes('blue-silk-tuxedo') as string)
       if (fakeCatalogApi.includes(link)) {
         const sale = createLabel('500')
 
         const price = item.querySelector('td[data-label="Price"]')
-        price.classList.add('product-item__price-wrapper--decoration')
+        price?.classList.add('product-item__price-wrapper--decoration')
 
-        price.insertAdjacentElement('beforeend', sale.salePrice)
-        price.insertAdjacentElement('beforeend', sale.label)
+        price?.insertAdjacentElement('beforeend', sale.salePrice)
+        price?.insertAdjacentElement('beforeend', sale.label)
       }
     }
   })
 }
 
-function productLabel(displayPrice: string, priceDiscount?: string) {
-
+function productLabel (displayPrice: string, priceDiscount?: string) {
   const sale = createLabel(displayPrice, priceDiscount)
 
   const price = document.querySelector(`.${productCardPrice}`)
-  price.classList.add('product-item__price-wrapper--decoration')
+  price?.classList.add('product-item__price-wrapper--decoration')
 
-  price.insertAdjacentElement('beforeend', sale.salePrice)
-  price.insertAdjacentElement('beforeend', sale.extraPrice)
-  price.insertAdjacentElement('beforeend', sale.label)
+  price?.insertAdjacentElement('beforeend', sale.salePrice)
+  price?.insertAdjacentElement('beforeend', sale.extraPrice)
+  price?.insertAdjacentElement('beforeend', sale.label)
 }
 
-function createLabel(displayPrice: string, priceDiscount?: string) {
+function createLabel (displayPrice: string, priceDiscount?: string) {
   const label = document.createElement('div')
   label.style.display = 'inline-block'
 
@@ -1344,11 +1354,12 @@ function createLabel(displayPrice: string, priceDiscount?: string) {
   extraPrice.innerText = `£${priceDiscount} if you buy an extra item marked by`
   extraPrice.style.paddingLeft = '0px'
 
-  return {label, salePrice, extraPrice}
+  return { label, salePrice, extraPrice }
 }
 
 setTimeout(async () => {
-  console.log(`Batna script works`);
+  // eslint-disable-next-line no-console
+  console.log('Batna script works')
   styleSheet()
 
   if (addToCartButton) {
@@ -1357,25 +1368,25 @@ setTimeout(async () => {
     const chat = getLocalStorage()
 
     if (answerScanCode?.data && answerScanCode?.session && previewSession?.attempt_option !== 3) {
-      attempt();
+      attempt()
 
       sessionKey = answerScanCode.session
       itemName = answerScanCode.data.screen.product.category
       img = answerScanCode.data.screen.product.img_link
       price = answerScanCode.data.screen.product.price
-      const displayPrice = answerScanCode.data.screen.product.display_price
-      const priceDiscount = answerScanCode.data.screen.product.price_discount
+      const displayPrice = answerScanCode.data.screen.product.display_price as string
+      const priceDiscount = answerScanCode.data.screen.product.price_discount as string
 
+      // eslint-disable-next-line
       if (displayPrice) {
-        priceDiscount ? priceDiscount : ''
         productLabel(displayPrice, priceDiscount)
       }
-      
+
       if (isFirstLoading) {
-        addHeader(img, price);
+        addHeader(img, price)
       }
 
-      submitAttempt();
+      submitAttempt()
 
       const chat = getLocalStorage()
 
@@ -1388,7 +1399,7 @@ setTimeout(async () => {
         isInputHidden = chat.isInputHidden
         if (isStartTrade) {
           setChat(chat.chatHTML)
-          addAttemptLabel();
+          addAttemptLabel()
         }
 
         if (isInputHidden) {
@@ -1397,40 +1408,42 @@ setTimeout(async () => {
       }
 
       if (!previewSession.attempt && previewSession.attempt_option === 1) {
-        addAttemptLabel();
-        setInputDisable();
-        attemptEnded('', true);
+        addAttemptLabel()
+        setInputDisable()
+        attemptEnded('', true)
       } else {
-        addNegotiateButton(addToCartButton);
-        const showButton = document.querySelector(showButtonClass);
+        addNegotiateButton(addToCartButton)
+        const showButton = document.querySelector(showButtonClass)
 
-        showButton.addEventListener('click', () => {
+        showButton?.addEventListener('click', () => {
           showPopup()
-          console.log('red button clicked');
-    
+          // eslint-disable-next-line no-console
+          console.log('red button clicked')
+
           if (!isStartTrade && previewSession.attempt_option !== 2) {
             startTrade(true)
-            addAttemptLabel();
+            addAttemptLabel()
           }
 
           if (previewSession.attempt_option === 2) {
-            previewSessionOpen();
+            previewSessionOpen()
           }
-        });
+        })
       }
 
       addToCartButton.addEventListener('click', () => {
         if (previewSession?.attempt_option === 3 || attemptCount > 1) return
         showPopup()
-        console.log('addToCart button clicked');
-  
+        // eslint-disable-next-line no-console
+        console.log('addToCart button clicked')
+
         if (!isStartTrade && previewSession.attempt_option !== 2) {
           startTrade(false)
-          addAttemptLabel();
+          addAttemptLabel()
         }
 
         if (previewSession.attempt_option === 2) {
-          previewSessionOpen();
+          previewSessionOpen()
         }
       })
     } else if (previewSession?.attempt_option === 3 && chat) {
@@ -1448,4 +1461,4 @@ setTimeout(async () => {
   if (localhost.includes('cart')) {
     cartLabels()
   }
-}, 1000);
+}, 1000)
