@@ -1,0 +1,25 @@
+{
+  "error": {},
+  "data": {
+    "basket": {
+      "groups": [
+        {
+          "added_products": [],
+          "offered_products": []
+        }
+      ]
+    },
+    "screen": {
+      "previous_price": 5000,
+      "product": {
+        "is_last_attempt": false,
+        "price": 7260,
+        "price_discount": 6475,
+        "display_price": 7000,
+        "category": "Blue Silk Tuxedo",
+        "img_link": "https://skidkavip.b-cdn.net/images/product/216bd6591f90e301bd7855ffec07b9ec.jpeg"
+      }
+    }
+  },
+  "session": "46a31ac1-2c17-4071-b103-2a40bcbfc780"
+}

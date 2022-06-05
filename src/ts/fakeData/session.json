@@ -1,0 +1,13 @@
+{
+  "data": {
+    "token": "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"
+  },
+  "settings": { 
+    "addToCartClass": "#AddToCart-product-template",
+    "salePosition": "bottomRight",
+    "chatPosition": "right",
+    "salePositionPrice": false,
+    "mainColor": "#FF4B2B",
+    "labelFontSize": 15
+  }
+}

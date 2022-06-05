@@ -1,0 +1,16 @@
+{
+  "data": {
+    "attempt": true,
+    "another_product": false,
+    "product": {
+      "color": "Черный (BLACK)",
+      "id": "0c2bdc57-5d9e-4824-88b9-6142cae1e101",
+      "img_link": "https://skidkavip.b-cdn.net/images/product/4a65b0a70ceb7459f11465318d2c9dc2.webp",
+      "name": "Classic Leather Jacket",
+      "price": 14180,
+      "sex": "M",
+      "size":  "S"
+    }
+  },
+  "session": "a41f0225-1e18-4bef-9a79-e4eb721c66cc"
+}

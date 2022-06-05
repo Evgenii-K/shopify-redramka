@@ -9,12 +9,13 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,                        /* Enable importing .json files */
     "outDir": "public/scripts",
     "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "temp/ignore.js"],
   "files": ["src/index.ts"]
 }
